@@ -1,0 +1,67 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.1'
+        classpath "io.spring.gradle:dependency-management-plugin:0.5.0.RELEASE"
+        classpath 'com.netflix.nebula:gradle-extra-configurations-plugin:2.2.+'
+    }
+}
+
+
+allprojects {
+    group = 'info.developerblog.spring.thrift'
+    version = '0.0.1'
+
+    repositories {
+        jcenter()
+    }
+    
+    apply plugin: 'idea'
+    apply plugin: "io.spring.dependency-management"
+    apply plugin: 'provided-base'
+
+    dependencyManagement {
+        dependencies {
+            dependencySet(group:'org.springframework.boot', version: '1.2.4.RELEASE') {
+                entry "spring-boot-starter-web"
+                entry "spring-boot-starter-test"
+                entry "spring-boot-starter-actuator"
+            }
+
+            dependency "org.springframework:spring-core:4.1.6.RELEASE"
+
+            dependency "org.apache.thrift:libthrift:0.9.2"
+
+            dependency "org.projectlombok:lombok:1.16.2"
+        }
+    }
+    
+    task resolveAllDependencies {
+        doLast {
+            configurations.all { it.resolve() }
+        }
+    }
+}
+
+subprojects {
+    apply plugin: 'java'
+
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+
+    test {
+        reports {
+            junitXml.enabled = true
+            html.enabled = true
+        }
+    }
+    
+    dependencies {
+        provided "org.projectlombok:lombok"
+
+        testCompile "org.springframework.boot:spring-boot-starter-test"
+    }
+}

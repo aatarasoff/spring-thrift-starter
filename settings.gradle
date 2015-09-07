@@ -1,0 +1,4 @@
+include 'spring-thrift-starter'
+include 'examples:simple-handler'
+include 'examples:simple-client'
+include 'examples:test-protocol'

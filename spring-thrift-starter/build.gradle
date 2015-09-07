@@ -1,0 +1,12 @@
+apply plugin: 'maven'
+apply plugin: 'com.jfrog.bintray'
+
+dependencies {
+    compile 'org.apache.thrift:libthrift'
+
+    compile "org.springframework.boot:spring-boot-starter-web"
+    compile "org.springframework.boot:spring-boot-starter-actuator"
+
+    compile 'org.apache.commons:commons-pool2:2.4.1'
+    compile 'org.apache.commons:commons-lang3:3.4'
+}
