@@ -1,8 +1,5 @@
-package info.developerblog.spring.thrift;
+package ru.trylogic.spring.boot.thrift;
 
-import info.developerblog.spring.thrift.annotation.ThriftHandler;
-import info.developerblog.spring.thrift.aop.ExceptionsThriftMethodInterceptor;
-import info.developerblog.spring.thrift.aop.MetricsThriftMethodInterceptor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
@@ -24,6 +21,9 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.ClassUtils;
+import ru.trylogic.spring.boot.thrift.annotation.ThriftHandler;
+import ru.trylogic.spring.boot.thrift.aop.ExceptionsThriftMethodInterceptor;
+import ru.trylogic.spring.boot.thrift.aop.MetricsThriftMethodInterceptor;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;

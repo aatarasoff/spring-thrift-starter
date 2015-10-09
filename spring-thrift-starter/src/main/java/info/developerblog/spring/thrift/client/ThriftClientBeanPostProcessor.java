@@ -7,6 +7,7 @@ import org.aopalliance.intercept.MethodInterceptor;
 import org.apache.commons.pool2.KeyedObjectPool;
 import org.apache.commons.pool2.KeyedPooledObjectFactory;
 import org.apache.commons.pool2.impl.GenericKeyedObjectPoolConfig;
+import org.apache.thrift.TException;
 import org.apache.thrift.TServiceClient;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.protocol.TProtocolFactory;
@@ -16,20 +17,26 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.InvalidPropertyException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ReflectionUtils;
+import ru.trylogic.spring.boot.thrift.annotation.ThriftHandler;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.UndeclaredThrowableException;
 
 /**
  * Created by aleksandr on 01.09.15.
  */
 @Component
 @Configuration
+@ConditionalOnClass(ThriftClient.class)
+@ConditionalOnWebApplication
 public class ThriftClientBeanPostProcessor implements org.springframework.beans.factory.config.BeanPostProcessor {
     @Autowired
     TProtocolFactory protocolFactory;
@@ -100,6 +107,10 @@ public class ThriftClientBeanPostProcessor implements org.springframework.beans.
             try {
                 thriftClient = thriftClientsPool.borrowObject(declaringClass);
                 return ReflectionUtils.invokeMethod(methodInvocation.getMethod(), thriftClient, args);
+            } catch (UndeclaredThrowableException e) {
+                if (TException.class.isAssignableFrom(e.getUndeclaredThrowable().getClass()))
+                    throw (TException)e.getUndeclaredThrowable();
+                throw e;
             } finally {
                 if (null != thriftClient)
                     thriftClientsPool.returnObject(declaringClass, thriftClient);

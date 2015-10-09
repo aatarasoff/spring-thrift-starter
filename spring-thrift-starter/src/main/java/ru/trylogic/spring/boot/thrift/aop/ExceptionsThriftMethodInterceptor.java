@@ -1,4 +1,4 @@
-package info.developerblog.spring.thrift.aop;
+package ru.trylogic.spring.boot.thrift.aop;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TApplicationException;

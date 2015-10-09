@@ -1,4 +1,4 @@
-package info.developerblog.spring.thrift.annotation;
+package ru.trylogic.spring.boot.thrift.annotation;
 
 import org.apache.thrift.protocol.TProtocolFactory;
 import org.springframework.stereotype.Component;

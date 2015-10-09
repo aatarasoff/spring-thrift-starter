@@ -2,8 +2,8 @@ package info.developerblog.examples.thirft.simpleclient;
 
 import example.TGreetingService;
 import example.TName;
-import info.developerblog.spring.thrift.annotation.ThriftHandler;
 import org.apache.thrift.TException;
+import ru.trylogic.spring.boot.thrift.annotation.ThriftHandler;
 
 /**
  * Created by aleksandr on 01.09.15.

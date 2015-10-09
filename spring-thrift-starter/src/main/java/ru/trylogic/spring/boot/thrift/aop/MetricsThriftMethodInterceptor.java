@@ -1,4 +1,4 @@
-package info.developerblog.spring.thrift.aop;
+package ru.trylogic.spring.boot.thrift.aop;
 
 import lombok.RequiredArgsConstructor;
 import org.aopalliance.intercept.MethodInterceptor;
