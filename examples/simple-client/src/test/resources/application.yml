@@ -1,1 +1,4 @@
-tGreetingService.endpoint: http://localhost:8080/api
+tGreetingService:
+  path: /api
+  ribbon:
+      listOfServers: localhost:8080

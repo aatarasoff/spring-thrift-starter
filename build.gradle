@@ -31,6 +31,10 @@ allprojects {
                 entry "spring-boot-starter-actuator"
             }
 
+            dependencySet(group:'org.springframework.cloud', version: '1.0.3.RELEASE') {
+                entry "spring-cloud-starter-ribbon"
+            }
+
             dependency "org.springframework:spring-core:4.1.6.RELEASE"
 
             dependency "org.apache.thrift:libthrift:0.9.2"

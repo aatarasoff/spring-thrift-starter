@@ -1,6 +1,7 @@
 package info.developerblog.spring.thrift.client;
 
 import info.developerblog.spring.thrift.annotation.ThriftClient;
+import info.developerblog.spring.thrift.client.pool.ThriftClientKey;
 import info.developerblog.spring.thrift.client.pool.ThriftClientPool;
 import info.developerblog.spring.thrift.client.pool.ThriftClientPooledObjectFactory;
 import org.aopalliance.intercept.MethodInterceptor;
@@ -19,6 +20,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
+import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.AnnotationUtils;
@@ -42,16 +45,19 @@ public class ThriftClientBeanPostProcessor implements org.springframework.beans.
     TProtocolFactory protocolFactory;
 
     @Autowired
+    LoadBalancerClient loadBalancerClient;
+
+    @Autowired
     PropertyResolver propertyResolver;
 
     @Autowired
     DefaultListableBeanFactory beanFactory;
 
     @Autowired
-    KeyedPooledObjectFactory<Class<? extends TServiceClient>, TServiceClient> thriftClientPoolFactory;
+    KeyedPooledObjectFactory<ThriftClientKey, TServiceClient> thriftClientPoolFactory;
 
     @Autowired
-    KeyedObjectPool<Class<? extends TServiceClient>, TServiceClient> thriftClientsPool;
+    KeyedObjectPool<ThriftClientKey, TServiceClient> thriftClientsPool;
 
     public ThriftClientBeanPostProcessor() {
     }
@@ -68,7 +74,7 @@ public class ThriftClientBeanPostProcessor implements org.springframework.beans.
                 } else {
                     ProxyFactory proxyFactory = getProxyFactoryForThriftClient(bean, field);
 
-                    addPoolAdvice(proxyFactory);
+                    addPoolAdvice(proxyFactory, annotation);
 
                     proxyFactory.setFrozen(true);
                     proxyFactory.setProxyTargetClass(true);
@@ -97,15 +103,18 @@ public class ThriftClientBeanPostProcessor implements org.springframework.beans.
     }
 
     @SuppressWarnings("unchecked")
-    private void addPoolAdvice(ProxyFactory proxyFactory) {
+    private void addPoolAdvice(ProxyFactory proxyFactory, ThriftClient annotation) {
         proxyFactory.addAdvice((MethodInterceptor) methodInvocation -> {
             Object[] args = methodInvocation.getArguments();
 
             Class<? extends TServiceClient> declaringClass = (Class<? extends TServiceClient>) methodInvocation.getMethod().getDeclaringClass();
 
             TServiceClient thriftClient = null;
+
+            ThriftClientKey key = new ThriftClientKey(declaringClass, annotation.value());
+
             try {
-                thriftClient = thriftClientsPool.borrowObject(declaringClass);
+                thriftClient = thriftClientsPool.borrowObject(key);
                 return ReflectionUtils.invokeMethod(methodInvocation.getMethod(), thriftClient, args);
             } catch (UndeclaredThrowableException e) {
                 if (TException.class.isAssignableFrom(e.getUndeclaredThrowable().getClass()))
@@ -113,7 +122,7 @@ public class ThriftClientBeanPostProcessor implements org.springframework.beans.
                 throw e;
             } finally {
                 if (null != thriftClient)
-                    thriftClientsPool.returnObject(declaringClass, thriftClient);
+                    thriftClientsPool.returnObject(key, thriftClient);
             }
         });
     }
@@ -124,7 +133,7 @@ public class ThriftClientBeanPostProcessor implements org.springframework.beans.
     }
 
     @Bean
-    public KeyedObjectPool<Class<? extends TServiceClient>, TServiceClient> thriftClientsPool() {
+    public KeyedObjectPool<ThriftClientKey, TServiceClient> thriftClientsPool() {
         GenericKeyedObjectPoolConfig poolConfig = new GenericKeyedObjectPoolConfig();
         poolConfig.setJmxEnabled(false); //cause spring will autodetect itself
         return new ThriftClientPool(thriftClientPoolFactory, poolConfig);
@@ -132,6 +141,6 @@ public class ThriftClientBeanPostProcessor implements org.springframework.beans.
 
     @Bean
     public KeyedPooledObjectFactory thriftClientPoolFactory() {
-        return new ThriftClientPooledObjectFactory(protocolFactory, propertyResolver);
+        return new ThriftClientPooledObjectFactory(protocolFactory, loadBalancerClient, propertyResolver);
     }
 }

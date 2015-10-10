@@ -10,4 +10,5 @@ import java.lang.annotation.*;
 @Documented
 @Inherited
 public @interface ThriftClient {
+    String value() default "";
 }
