@@ -24,6 +24,7 @@ import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.stereotype.Component;
@@ -32,6 +33,9 @@ import ru.trylogic.spring.boot.thrift.annotation.ThriftHandler;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.UndeclaredThrowableException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by aleksandr on 01.09.15.
@@ -41,6 +45,8 @@ import java.lang.reflect.UndeclaredThrowableException;
 @ConditionalOnClass(ThriftClient.class)
 @ConditionalOnWebApplication
 public class ThriftClientBeanPostProcessor implements org.springframework.beans.factory.config.BeanPostProcessor {
+    Map<String, Class> beansToProcess = new HashMap<>();
+
     @Autowired
     TProtocolFactory protocolFactory;
 
@@ -64,23 +70,39 @@ public class ThriftClientBeanPostProcessor implements org.springframework.beans.
 
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-        for (Field field : bean.getClass().getDeclaredFields()) {
-            ThriftClient annotation = AnnotationUtils.getAnnotation(field, ThriftClient.class);
+        Class clazz = bean.getClass();
+        do {
+            for (Field field : clazz.getDeclaredFields()) {
+                if (field.isAnnotationPresent(ThriftClient.class)) {
+                    beansToProcess.put(beanName, clazz);
+                }
+            }
+            clazz = clazz.getSuperclass();
+        } while (clazz != null);
+        return bean;
+    }
 
-            if (null != annotation) {
-                if (beanFactory.containsBean(field.getName())) {
-                    ReflectionUtils.makeAccessible(field);
-                    ReflectionUtils.setField(field, bean, beanFactory.getBean(field.getName()));
-                } else {
-                    ProxyFactory proxyFactory = getProxyFactoryForThriftClient(bean, field);
+    @Override
+    public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+        if (beansToProcess.containsKey(beanName)) {
+            for (Field field : beansToProcess.get(beanName).getDeclaredFields()) {
+                ThriftClient annotation = AnnotationUtils.getAnnotation(field, ThriftClient.class);
 
-                    addPoolAdvice(proxyFactory, annotation);
+                if (null != annotation) {
+                    if (beanFactory.containsBean(field.getName())) {
+                        ReflectionUtils.makeAccessible(field);
+                        ReflectionUtils.setField(field, bean, beanFactory.getBean(field.getName()));
+                    } else {
+                        ProxyFactory proxyFactory = getProxyFactoryForThriftClient(bean, field);
 
-                    proxyFactory.setFrozen(true);
-                    proxyFactory.setProxyTargetClass(true);
+                        addPoolAdvice(proxyFactory, annotation);
 
-                    ReflectionUtils.makeAccessible(field);
-                    ReflectionUtils.setField(field, bean, proxyFactory.getProxy());
+                        proxyFactory.setFrozen(true);
+                        proxyFactory.setProxyTargetClass(true);
+
+                        ReflectionUtils.makeAccessible(field);
+                        ReflectionUtils.setField(field, bean, proxyFactory.getProxy());
+                    }
                 }
             }
         }
@@ -125,11 +147,6 @@ public class ThriftClientBeanPostProcessor implements org.springframework.beans.
                     thriftClientsPool.returnObject(key, thriftClient);
             }
         });
-    }
-
-    @Override
-    public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-        return bean;
     }
 
     @Bean
