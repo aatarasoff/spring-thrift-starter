@@ -20,21 +20,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
-import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.Ordered;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ReflectionUtils;
-import ru.trylogic.spring.boot.thrift.annotation.ThriftHandler;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -133,7 +129,11 @@ public class ThriftClientBeanPostProcessor implements org.springframework.beans.
 
             TServiceClient thriftClient = null;
 
-            ThriftClientKey key = new ThriftClientKey(declaringClass, annotation.value());
+            ThriftClientKey key = ThriftClientKey.builder()
+                    .clazz(declaringClass)
+                    .serviceName(annotation.serviceId())
+                    .path(annotation.path())
+                    .build();
 
             try {
                 thriftClient = thriftClientsPool.borrowObject(key);

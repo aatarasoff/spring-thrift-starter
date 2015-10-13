@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class GreetingService {
 
-    @ThriftClient
+    @ThriftClient(serviceId = "greeting-service", path = "/api")
     TGreetingService.Client client;
 
     public String getGreeting(String lastName, String firstName) throws TException {

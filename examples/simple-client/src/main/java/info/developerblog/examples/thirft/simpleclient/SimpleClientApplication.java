@@ -23,7 +23,7 @@ public class SimpleClientApplication {
         SpringApplication.run(SimpleClientApplication.class, args);
     }
 
-    @ThriftClient
+    @ThriftClient(serviceId = "greeting-service", path = "/api")
     TGreetingService.Client client;
 
     @RequestMapping(value = "/fee")

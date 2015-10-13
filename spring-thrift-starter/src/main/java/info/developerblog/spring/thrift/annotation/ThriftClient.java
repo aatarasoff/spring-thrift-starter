@@ -10,5 +10,7 @@ import java.lang.annotation.*;
 @Documented
 @Inherited
 public @interface ThriftClient {
-    String value() default "";
+    String serviceId() default "";
+
+    String path() default "";
 }

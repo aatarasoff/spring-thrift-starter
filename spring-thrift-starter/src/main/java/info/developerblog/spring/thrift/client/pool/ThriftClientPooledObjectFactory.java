@@ -40,7 +40,7 @@ public class ThriftClientPooledObjectFactory extends BaseKeyedPooledObjectFactor
                     new TLoadBalancerClient(
                             loadBalancerClient,
                             serviceName,
-                            propertyResolver.getProperty(serviceName + ".path")
+                            propertyResolver.getProperty(serviceName + ".path", "") + key.getPath()
                     )
             );
         } else {
