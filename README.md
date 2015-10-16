@@ -45,11 +45,11 @@ TGreetingService.Client client;
 ###Thrift Client configuration
 
 ```
-greeting-service: //service name
-  endpoint: http://localhost:8080/api //direct endpoint
-  ribbon: //manually ribbon
+greeting-service:                     #service name
+  endpoint: http://localhost:8080/api #direct endpoint
+  ribbon:                             #manually ribbon
       listOfServers: localhost:8080
-  path: /service //general path
+  path: /service                      #general path
 ```
 
 If you use service discovery backend (as Eureka or Consul) only path maybe needed.
