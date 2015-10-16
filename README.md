@@ -22,7 +22,7 @@ compile 'info.developerblog.spring.thrift:spring-thrift-starter:0.1.3'
 
 ## How use this
 
-Annotation @ThriftHandler(<servlet_path>) helps you building server controller for request processing
+Annotation @ThriftHandler("servlet_path") helps you building server controller for request processing
 
 ```
 @ThriftHandler("/api")
@@ -35,7 +35,7 @@ public class TGreetingServiceHandler implements TGreetingService.Iface {
 }
 ```
 
-Other annotation @ThriftClient(serviceId = "<registered_service>", (path) = "<server_handler_path>") helps you with multithreaded client with full Spring Cloud support.
+Other annotation @ThriftClient(serviceId = "registered_service", (path) = "server_handler_path") helps you with multithreaded client with full Spring Cloud support.
 
 ```
 @ThriftClient(serviceId = "greeting-service", path = "/api")
