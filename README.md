@@ -1,5 +1,7 @@
 # Apache Thrift Starter for Spring Boot
 
+[![Join the chat at https://gitter.im/aatarasoff/spring-thrift-starter](https://badges.gitter.im/aatarasoff/spring-thrift-starter.svg)](https://gitter.im/aatarasoff/spring-thrift-starter?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 ## What is it
 
 Set of cool annotations that helps you building Thrift applications with Spring Boot.
