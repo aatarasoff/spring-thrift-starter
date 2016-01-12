@@ -15,6 +15,7 @@ buildscript {
 repositories {
     ivy {
         artifactPattern "http://dl.bintray.com/bsideup/thirdparty/[artifact]-[revision](-[classifier]).[ext]"
+        artifactPattern "http://dl.bintray.com/aatarasoff/maven/[artifact]-[revision](-[classifier]).[ext]"
     }
 }
 
