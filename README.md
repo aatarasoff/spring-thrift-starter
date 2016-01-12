@@ -12,9 +12,7 @@ Its very simple:
 
 ```
 repositories {
-    maven {
-        url  "http://dl.bintray.com/aatarasoff/maven"
-    }
+    jcenter()
 }
 ```
 
