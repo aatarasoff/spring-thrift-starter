@@ -24,6 +24,7 @@ import org.springframework.util.ClassUtils;
 import ru.trylogic.spring.boot.thrift.annotation.ThriftHandler;
 import ru.trylogic.spring.boot.thrift.aop.ExceptionsThriftMethodInterceptor;
 import ru.trylogic.spring.boot.thrift.aop.MetricsThriftMethodInterceptor;
+import ru.trylogic.spring.boot.thrift.aop.LoggingThriftMethodInterceptor;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -50,10 +51,19 @@ public class ThriftAutoConfiguration {
     TProtocolFactory thriftProtocolFactory() {
         return new TBinaryProtocol.Factory();
     }
+
+    @Bean
+    @ConditionalOnMissingBean(LoggingThriftMethodInterceptor.class)
+    LoggingThriftMethodInterceptor loggingThriftMethodInterceptor() {
+        return new LoggingThriftMethodInterceptor();
+    }
     
     public static class DefaultThriftConfigurer implements ThriftConfigurer {
         @Autowired(required = false)
         GaugeService gaugeService;
+
+        @Autowired
+        LoggingThriftMethodInterceptor loggingThriftMethodInterceptor;
 
         public void configureProxyFactory(ProxyFactory proxyFactory) {
             proxyFactory.setOptimize(true);
@@ -63,6 +73,7 @@ public class ThriftAutoConfiguration {
             }
 
             proxyFactory.addAdvice(new ExceptionsThriftMethodInterceptor());
+            proxyFactory.addAdvice(loggingThriftMethodInterceptor);
         }
     }
 
