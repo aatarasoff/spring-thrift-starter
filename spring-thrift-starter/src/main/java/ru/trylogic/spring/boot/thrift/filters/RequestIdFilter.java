@@ -12,34 +12,41 @@ import static org.slf4j.MDC.remove;
 
 public class RequestIdFilter implements Filter {
 
-	private static final String MDC_REQUEST_ID = "request_id";
+	private static final String DEFAULT_MDC_KEY = "request_id";
 	private static final String X_REQUEST_ID = "x-request-id";
 
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException {
-
 	}
 
-	private String getXRequestId(HttpServletRequest request) {
-		String requestId = request.getHeader(X_REQUEST_ID);
-		if (Strings.isNullOrEmpty(requestId)) {
-			return String.valueOf(Instant.now().toEpochMilli());
-		}
-
-		return requestId;
+	@Override
+	public void destroy() {
 	}
 
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException,
 			ServletException {
-		put(MDC_REQUEST_ID, getXRequestId((HttpServletRequest) request));
+		String key = getMDCKey();
+		put(key, getXRequestId((HttpServletRequest) request));
 		chain.doFilter(request, response);
-		remove(MDC_REQUEST_ID);
+		remove(key);
 	}
 
-	@Override
-	public void destroy() {
-
+	protected String getMDCKey() {
+		return DEFAULT_MDC_KEY;
 	}
+
+	protected String getXRequestId(HttpServletRequest request) {
+		String requestId = request.getHeader(X_REQUEST_ID);
+		if (Strings.isNullOrEmpty(requestId)) {
+			return generateXRequestId();
+		}
+		return requestId;
+	}
+
+	protected String generateXRequestId() {
+		return String.valueOf(Instant.now().toEpochMilli());
+	}
+
 }

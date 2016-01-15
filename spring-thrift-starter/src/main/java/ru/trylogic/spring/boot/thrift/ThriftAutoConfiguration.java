@@ -72,9 +72,6 @@ public class ThriftAutoConfiguration {
         @Autowired
         LoggingThriftMethodInterceptor loggingThriftMethodInterceptor;
 
-        @Autowired
-        RequestIdFilter requestIdFilter;
-
         public void configureProxyFactory(ProxyFactory proxyFactory) {
             proxyFactory.setOptimize(true);
 
