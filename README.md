@@ -2,11 +2,11 @@
 
 [![Join the chat at https://gitter.im/aatarasoff/spring-thrift-starter](https://badges.gitter.im/aatarasoff/spring-thrift-starter.svg)](https://gitter.im/aatarasoff/spring-thrift-starter?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Build Status](https://travis-ci.org/aatarasoff/spring-thrift-starter.svg?branch=master)](https://travis-ci.org/aatarasoff/spring-thrift-starter)
 
-## What is it
+## What it is about
 
 Set of cool annotations that helps you building Thrift applications with Spring Boot.
 
-## How connect project
+## How to connect the project
 
 Its very simple:
 
@@ -20,7 +20,7 @@ repositories {
 compile 'info.developerblog.spring.thrift:spring-thrift-starter:0.1.3'
 ```
 
-## How use this
+## How to use this
 
 Annotation @ThriftHandler("servlet_path") helps you building server controller for request processing
 
