@@ -17,6 +17,8 @@ import org.springframework.core.env.PropertyResolver;
  * Created by aleksandr on 14.07.15.
  */
 public class ThriftClientPooledObjectFactory extends BaseKeyedPooledObjectFactory<ThriftClientKey, TServiceClient> {
+    public static final int DEFAULT_CONNECTION_TIMEOUT = 1000;
+    public static final int DEFAULT_READ_TIMEOUT = 30000;
     TProtocolFactory protocolFactory;
     LoadBalancerClient loadBalancerClient;
     PropertyResolver propertyResolver;
@@ -33,18 +35,27 @@ public class ThriftClientPooledObjectFactory extends BaseKeyedPooledObjectFactor
 
         String endpoint = propertyResolver.getProperty(serviceName + ".endpoint");
 
+        int connectTimeout = propertyResolver.getProperty(serviceName + ".connectTimeout", Integer.class, DEFAULT_CONNECTION_TIMEOUT);
+        int readTimeout = propertyResolver.getProperty(serviceName + ".readTimeout", Integer.class, DEFAULT_READ_TIMEOUT);
+
         TProtocol protocol;
 
         if (Strings.isNullOrEmpty(endpoint)) {
-            protocol = protocolFactory.getProtocol(
-                    new TLoadBalancerClient(
-                            loadBalancerClient,
-                            serviceName,
-                            propertyResolver.getProperty(serviceName + ".path", "") + key.getPath()
-                    )
+            final TLoadBalancerClient loadBalancerClient = new TLoadBalancerClient(
+                    this.loadBalancerClient,
+                    serviceName,
+                    propertyResolver.getProperty(serviceName + ".path", "") + key.getPath()
             );
+            loadBalancerClient.setConnectTimeout(connectTimeout);
+            loadBalancerClient.setReadTimeout(readTimeout);
+
+            protocol = protocolFactory.getProtocol(loadBalancerClient);
         } else {
-            protocol = protocolFactory.getProtocol(new THttpClient(endpoint));
+            final THttpClient httpClient = new THttpClient(endpoint);
+            httpClient.setConnectTimeout(connectTimeout);
+            httpClient.setReadTimeout(readTimeout);
+
+            protocol = protocolFactory.getProtocol(httpClient);
         }
 
         return BeanUtils.instantiateClass(
