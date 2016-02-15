@@ -1,7 +1,6 @@
 *.class
 
 # Package Files #
-*.jar
 *.war
 *.ear
 *.pydevproject
@@ -89,7 +88,4 @@ pmd-config.xml
 findbugs-config.xml
 derbyDB
 derby.log
-/gradle
-/gradlew
-/gradlew.bat
 /jbehave
