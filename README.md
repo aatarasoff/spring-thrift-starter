@@ -50,6 +50,8 @@ greeting-service:                     #service name
   ribbon:                             #manually ribbon
       listOfServers: localhost:8080
   path: /service                      #general path
+  connectTimeout: 1000                #default=1000
+  readTimeout: 10000                  #default=30000
 ```
 
 If you use service discovery backend (as Eureka or Consul) only path maybe needed.
