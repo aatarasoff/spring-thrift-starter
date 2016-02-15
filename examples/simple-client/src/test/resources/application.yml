@@ -1,4 +1,8 @@
 greeting-service:
-  #endpoint: http://localhost:8080/api
+  ribbon:
+      listOfServers: localhost:8080
+greeting-service-with-timeouts:
+  connectTimeout: 1
+  readTimeout: 1
   ribbon:
       listOfServers: localhost:8080

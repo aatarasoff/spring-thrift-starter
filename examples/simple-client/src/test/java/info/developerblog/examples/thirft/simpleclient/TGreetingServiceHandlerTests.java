@@ -1,5 +1,6 @@
 package info.developerblog.examples.thirft.simpleclient;
 
+import org.apache.thrift.transport.TTransportException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -47,5 +48,10 @@ public class TGreetingServiceHandlerTests {
         mockMvc.perform(
                 MockMvcRequestBuilders.request(HttpMethod.GET, "/fee")
         ).andReturn();
+    }
+
+    @Test(expected = TTransportException.class)
+    public void testCallWithTimeout() throws Exception {
+        greetingService.getGreetingWithTimeout("Smith", "John");
     }
 }
