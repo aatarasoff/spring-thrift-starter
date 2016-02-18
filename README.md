@@ -58,6 +58,11 @@ If you use service discovery backend (as Eureka or Consul) only path maybe neede
 
 See tests for better understanding.
 
+## Special thanks to
+
+* [@bsideup](https://github.com/bsideup) who inspired me with his [project](https://github.com/bsideup/thrift-spring-boot-starter)
+* [@lavcraft](https://github.com/lavcraft) who was helping me when I've been stucked
+
 ## Enjoy!
 
 
