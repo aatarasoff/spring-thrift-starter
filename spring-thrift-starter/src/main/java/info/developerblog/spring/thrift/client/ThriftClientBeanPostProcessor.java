@@ -27,6 +27,7 @@ import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ReflectionUtils;
+import ru.trylogic.spring.boot.thrift.beans.RequestIdLogger;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.UndeclaredThrowableException;
@@ -51,6 +52,9 @@ public class ThriftClientBeanPostProcessor implements org.springframework.beans.
 
     @Autowired
     PropertyResolver propertyResolver;
+
+    @Autowired
+    RequestIdLogger requestIdLogger;
 
     @Autowired
     DefaultListableBeanFactory beanFactory;
@@ -158,6 +162,12 @@ public class ThriftClientBeanPostProcessor implements org.springframework.beans.
 
     @Bean
     public KeyedPooledObjectFactory thriftClientPoolFactory() {
-        return new ThriftClientPooledObjectFactory(protocolFactory, loadBalancerClient, propertyResolver);
+        return ThriftClientPooledObjectFactory
+                .builder()
+                    .protocolFactory(protocolFactory)
+                    .propertyResolver(propertyResolver)
+                    .loadBalancerClient(loadBalancerClient)
+                    .requestIdLogger(requestIdLogger)
+                .build();
     }
 }
