@@ -25,6 +25,7 @@ import ru.trylogic.spring.boot.thrift.annotation.ThriftHandler;
 import ru.trylogic.spring.boot.thrift.aop.ExceptionsThriftMethodInterceptor;
 import ru.trylogic.spring.boot.thrift.aop.MetricsThriftMethodInterceptor;
 import ru.trylogic.spring.boot.thrift.aop.LoggingThriftMethodInterceptor;
+import ru.trylogic.spring.boot.thrift.beans.RequestIdLogger;
 import ru.trylogic.spring.boot.thrift.filters.RequestIdFilter;
 
 import javax.servlet.ServletContext;
@@ -64,6 +65,10 @@ public class ThriftAutoConfiguration {
     RequestIdFilter requestIdFilter() {
         return new RequestIdFilter();
     }
+
+    @Bean
+    @ConditionalOnMissingBean(RequestIdLogger.class)
+    RequestIdLogger requestIdLogger() { return new RequestIdLogger(); }
     
     public static class DefaultThriftConfigurer implements ThriftConfigurer {
         @Autowired(required = false)

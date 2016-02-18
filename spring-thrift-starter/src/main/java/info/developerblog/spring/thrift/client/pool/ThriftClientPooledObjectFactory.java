@@ -1,33 +1,34 @@
 package info.developerblog.spring.thrift.client.pool;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import info.developerblog.spring.thrift.transport.TLoadBalancerClient;
+import lombok.Builder;
 import org.apache.commons.pool2.BaseKeyedPooledObjectFactory;
 import org.apache.commons.pool2.PooledObject;
 import org.apache.commons.pool2.impl.DefaultPooledObject;
+import org.apache.log4j.MDC;
 import org.apache.thrift.TServiceClient;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.protocol.TProtocolFactory;
 import org.apache.thrift.transport.THttpClient;
+import org.apache.thrift.transport.TTransport;
 import org.springframework.beans.BeanUtils;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.core.env.PropertyResolver;
+import ru.trylogic.spring.boot.thrift.beans.RequestIdLogger;
 
 /**
  * Created by aleksandr on 14.07.15.
  */
+@Builder
 public class ThriftClientPooledObjectFactory extends BaseKeyedPooledObjectFactory<ThriftClientKey, TServiceClient> {
     public static final int DEFAULT_CONNECTION_TIMEOUT = 1000;
     public static final int DEFAULT_READ_TIMEOUT = 30000;
     TProtocolFactory protocolFactory;
     LoadBalancerClient loadBalancerClient;
     PropertyResolver propertyResolver;
-
-    public ThriftClientPooledObjectFactory(TProtocolFactory protocolFactory, LoadBalancerClient loadBalancerClient, PropertyResolver propertyResolver) {
-        this.protocolFactory = protocolFactory;
-        this.loadBalancerClient = loadBalancerClient;
-        this.propertyResolver = propertyResolver;
-    }
+    RequestIdLogger requestIdLogger;
 
     @Override
     public TServiceClient create(ThriftClientKey key) throws Exception {
@@ -73,14 +74,32 @@ public class ThriftClientPooledObjectFactory extends BaseKeyedPooledObjectFactor
     public void activateObject(ThriftClientKey key, PooledObject<TServiceClient> p) throws Exception {
         super.activateObject(key, p);
 
-        resetAndClose(p);
+        Optional requestId = Optional.fromNullable(MDC.get(requestIdLogger.getMDCKey()));
+
+        if (requestId.isPresent()) {
+            TTransport transport = p.getObject().getOutputProtocol().getTransport();
+
+            if (transport instanceof THttpClient) {
+                ((THttpClient)transport).setCustomHeader(requestIdLogger.getRequestIdHeader(), (String) requestId.get());
+            } else {
+                ((TLoadBalancerClient)transport).setCustomHeader(requestIdLogger.getRequestIdHeader(), (String) requestId.get());
+            }
+        }
     }
 
     @Override
     public void passivateObject(ThriftClientKey key, PooledObject<TServiceClient> p) throws Exception {
-        super.passivateObject(key, p);
+        TTransport transport = p.getObject().getOutputProtocol().getTransport();
+
+        if (transport instanceof THttpClient) {
+            ((THttpClient)transport).setCustomHeaders(null);
+        } else {
+            ((TLoadBalancerClient)transport).setCustomHeaders(null);
+        }
 
         resetAndClose(p);
+
+        super.passivateObject(key, p);
     }
 
     private void resetAndClose(PooledObject<TServiceClient> p) {
