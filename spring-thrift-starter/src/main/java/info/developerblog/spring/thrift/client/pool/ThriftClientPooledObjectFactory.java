@@ -74,7 +74,7 @@ public class ThriftClientPooledObjectFactory extends BaseKeyedPooledObjectFactor
     public void activateObject(ThriftClientKey key, PooledObject<TServiceClient> p) throws Exception {
         super.activateObject(key, p);
 
-        Optional requestId = Optional.fromNullable(MDC.get(RequestIdLogger.getMDCKey()));
+        Optional requestId = Optional.fromNullable(MDC.get(requestIdLogger.getMDCKey()));
 
         if (requestId.isPresent()) {
             TTransport transport = p.getObject().getOutputProtocol().getTransport();

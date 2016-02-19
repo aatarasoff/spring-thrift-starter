@@ -16,7 +16,7 @@ public class RequestIdLogger {
   private static final String DEFAULT_MDC_KEY = "request_id";
   private static final String X_REQUEST_ID = "x-request-id";
 
-  public static String getMDCKey() {
+  public String getMDCKey() {
     return DEFAULT_MDC_KEY;
   }
 
