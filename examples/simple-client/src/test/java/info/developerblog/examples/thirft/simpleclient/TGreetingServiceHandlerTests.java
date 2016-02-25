@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.http.HttpMethod;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
@@ -27,6 +28,7 @@ import static org.slf4j.MDC.put;
 @SpringApplicationConfiguration(classes = SimpleClientApplication.class)
 @WebAppConfiguration
 @IntegrationTest("server.port:8080")
+@DirtiesContext
 public class TGreetingServiceHandlerTests {
 
     @Autowired
