@@ -4,6 +4,7 @@ import info.developerblog.spring.thrift.annotation.ThriftClient;
 import info.developerblog.spring.thrift.client.pool.ThriftClientKey;
 import info.developerblog.spring.thrift.client.pool.ThriftClientPool;
 import info.developerblog.spring.thrift.client.pool.ThriftClientPooledObjectFactory;
+import lombok.SneakyThrows;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.apache.commons.pool2.KeyedObjectPool;
 import org.apache.commons.pool2.KeyedPooledObjectFactory;
@@ -12,7 +13,9 @@ import org.apache.thrift.TException;
 import org.apache.thrift.TServiceClient;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.protocol.TProtocolFactory;
+import org.springframework.aop.framework.Advised;
 import org.springframework.aop.framework.ProxyFactory;
+import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.InvalidPropertyException;
@@ -85,15 +88,16 @@ public class ThriftClientBeanPostProcessor implements org.springframework.beans.
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
         if (beansToProcess.containsKey(beanName)) {
+            Object target = getTargetBean(bean);
             for (Field field : beansToProcess.get(beanName).getDeclaredFields()) {
                 ThriftClient annotation = AnnotationUtils.getAnnotation(field, ThriftClient.class);
 
                 if (null != annotation) {
                     if (beanFactory.containsBean(field.getName())) {
                         ReflectionUtils.makeAccessible(field);
-                        ReflectionUtils.setField(field, bean, beanFactory.getBean(field.getName()));
+                        ReflectionUtils.setField(field, target, beanFactory.getBean(field.getName()));
                     } else {
-                        ProxyFactory proxyFactory = getProxyFactoryForThriftClient(bean, field);
+                        ProxyFactory proxyFactory = getProxyFactoryForThriftClient(target, field);
 
                         addPoolAdvice(proxyFactory, annotation);
 
@@ -101,12 +105,22 @@ public class ThriftClientBeanPostProcessor implements org.springframework.beans.
                         proxyFactory.setProxyTargetClass(true);
 
                         ReflectionUtils.makeAccessible(field);
-                        ReflectionUtils.setField(field, bean, proxyFactory.getProxy());
+                        ReflectionUtils.setField(field, target, proxyFactory.getProxy());
                     }
                 }
             }
         }
         return bean;
+    }
+
+    //We have to get a real bean in order to inject a thrift client into the bean instead of its proxy.
+    @SneakyThrows
+    private Object getTargetBean(Object bean) {
+        Object target = bean;
+        while (AopUtils.isAopProxy(target)) {
+            target = ((Advised)target).getTargetSource().getTarget();
+        }
+        return target;
     }
 
     private ProxyFactory getProxyFactoryForThriftClient(Object bean, Field field) {
