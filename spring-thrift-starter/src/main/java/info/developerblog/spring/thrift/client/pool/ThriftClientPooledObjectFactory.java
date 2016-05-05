@@ -25,10 +25,10 @@ import ru.trylogic.spring.boot.thrift.beans.RequestIdLogger;
 public class ThriftClientPooledObjectFactory extends BaseKeyedPooledObjectFactory<ThriftClientKey, TServiceClient> {
     public static final int DEFAULT_CONNECTION_TIMEOUT = 1000;
     public static final int DEFAULT_READ_TIMEOUT = 30000;
-    TProtocolFactory protocolFactory;
-    LoadBalancerClient loadBalancerClient;
-    PropertyResolver propertyResolver;
-    RequestIdLogger requestIdLogger;
+    private TProtocolFactory protocolFactory;
+    private LoadBalancerClient loadBalancerClient;
+    private PropertyResolver propertyResolver;
+    private RequestIdLogger requestIdLogger;
 
     @Override
     public TServiceClient create(ThriftClientKey key) throws Exception {

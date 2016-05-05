@@ -8,7 +8,7 @@ import org.springframework.boot.actuate.metrics.GaugeService;
 @RequiredArgsConstructor
 public class MetricsThriftMethodInterceptor implements MethodInterceptor {
 
-    final GaugeService gaugeService;
+    private final GaugeService gaugeService;
     
     @Override
     public Object invoke(MethodInvocation invocation) throws Throwable {

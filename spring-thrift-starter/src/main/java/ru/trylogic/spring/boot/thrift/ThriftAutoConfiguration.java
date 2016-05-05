@@ -72,10 +72,10 @@ public class ThriftAutoConfiguration {
     
     public static class DefaultThriftConfigurer implements ThriftConfigurer {
         @Autowired(required = false)
-        GaugeService gaugeService;
+        private GaugeService gaugeService;
 
         @Autowired
-        LoggingThriftMethodInterceptor loggingThriftMethodInterceptor;
+        private LoggingThriftMethodInterceptor loggingThriftMethodInterceptor;
 
         public void configureProxyFactory(ProxyFactory proxyFactory) {
             proxyFactory.setOptimize(true);
@@ -94,13 +94,13 @@ public class ThriftAutoConfiguration {
         
         @Getter
         @Setter
-        ApplicationContext applicationContext;
+        private ApplicationContext applicationContext;
 
         @Autowired
-        TProtocolFactory protocolFactory;
+        private TProtocolFactory protocolFactory;
         
         @Autowired
-        ThriftConfigurer thriftConfigurer;
+        private ThriftConfigurer thriftConfigurer;
 
         @Override
         @SneakyThrows({NoSuchMethodException.class, ClassNotFoundException.class, InstantiationException.class, IllegalAccessException.class})

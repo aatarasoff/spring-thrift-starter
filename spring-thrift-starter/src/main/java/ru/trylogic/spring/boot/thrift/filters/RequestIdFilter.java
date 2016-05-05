@@ -10,7 +10,7 @@ import java.io.IOException;
 public class RequestIdFilter implements Filter {
 
 	@Autowired
-	RequestIdLogger requestIdLogger;
+	private RequestIdLogger requestIdLogger;
 
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException {
