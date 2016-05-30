@@ -45,28 +45,28 @@ import java.util.Map;
 @ConditionalOnClass(ThriftClient.class)
 @ConditionalOnWebApplication
 public class ThriftClientBeanPostProcessor implements org.springframework.beans.factory.config.BeanPostProcessor {
-    Map<String, Class> beansToProcess = new HashMap<>();
+    private Map<String, Class> beansToProcess = new HashMap<>();
 
     @Autowired
-    TProtocolFactory protocolFactory;
+    private TProtocolFactory protocolFactory;
 
     @Autowired
-    LoadBalancerClient loadBalancerClient;
+    private LoadBalancerClient loadBalancerClient;
 
     @Autowired
-    PropertyResolver propertyResolver;
+    private PropertyResolver propertyResolver;
 
     @Autowired
-    RequestIdLogger requestIdLogger;
+    private RequestIdLogger requestIdLogger;
 
     @Autowired
-    DefaultListableBeanFactory beanFactory;
+    private DefaultListableBeanFactory beanFactory;
 
     @Autowired
-    KeyedPooledObjectFactory<ThriftClientKey, TServiceClient> thriftClientPoolFactory;
+    private KeyedPooledObjectFactory<ThriftClientKey, TServiceClient> thriftClientPoolFactory;
 
     @Autowired
-    KeyedObjectPool<ThriftClientKey, TServiceClient> thriftClientsPool;
+    private KeyedObjectPool<ThriftClientKey, TServiceClient> thriftClientsPool;
 
     public ThriftClientBeanPostProcessor() {
     }
