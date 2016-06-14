@@ -9,9 +9,8 @@ import javax.annotation.PostConstruct;
 import org.springframework.stereotype.Component;
 
 /**
- * @author jihor (dmitriy_zhikharev@rgs.ru)
- *         (С) RGS Group, http://www.rgs.ru
- *         Created on 2016-06-14
+ * @author jihor (jihor@ya.ru)
+ * Created on 2016-06-14
  */
 @Component
 public class SampleMapper extends AbstractThriftClientKeyMapper {
