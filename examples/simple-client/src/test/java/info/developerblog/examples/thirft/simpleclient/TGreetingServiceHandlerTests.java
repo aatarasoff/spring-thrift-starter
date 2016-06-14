@@ -71,4 +71,15 @@ public class TGreetingServiceHandlerTests {
 
         assertEquals("request_id must be the same", "1234567890", Whitebox.getInternalState(requestIdLogger, "requestId"));
     }
+
+    @Test
+    public void testMappedClient() throws Exception {
+        greetingService.getGreetingForKey("key1", "Doe", "John");
+    }
+
+    @Test(expected = TTransportException.class)
+    public void testMappedClientWithTimeout() throws Exception {
+        greetingService.getGreetingForKey("key2", "Doe", "Jane");
+    }
+
 }

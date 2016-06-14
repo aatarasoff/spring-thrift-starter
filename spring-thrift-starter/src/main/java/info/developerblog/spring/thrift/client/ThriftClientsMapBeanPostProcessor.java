@@ -1,6 +1,6 @@
 package info.developerblog.spring.thrift.client;
 
-import info.developerblog.spring.thrift.annotation.ThriftClient;
+import info.developerblog.spring.thrift.annotation.ThriftClientsMap;
 import info.developerblog.spring.thrift.client.pool.ThriftClientKey;
 import java.lang.reflect.Field;
 import java.lang.reflect.UndeclaredThrowableException;
@@ -19,6 +19,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.InvalidPropertyException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
@@ -29,15 +30,16 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.ReflectionUtils;
 
 /**
- * Created by aleksandr on 01.09.15.
+ * @author jihor (jihor@ya.ru)
+ * Created on 2016-06-14
  */
 
 @Component
 @Configuration
 @Import(PoolConfiguration.class)
-@ConditionalOnClass(ThriftClient.class)
+@ConditionalOnClass(ThriftClientsMap.class)
 @ConditionalOnWebApplication
-public class ThriftClientBeanPostProcessor implements org.springframework.beans.factory.config.BeanPostProcessor {
+public class ThriftClientsMapBeanPostProcessor implements BeanPostProcessor {
     private Map<String, Class> beansToProcess = new HashMap<>();
 
     @Autowired
@@ -46,7 +48,7 @@ public class ThriftClientBeanPostProcessor implements org.springframework.beans.
     @Autowired
     private KeyedObjectPool<ThriftClientKey, TServiceClient> thriftClientsPool;
 
-    public ThriftClientBeanPostProcessor() {
+    public ThriftClientsMapBeanPostProcessor() {
     }
 
     @Override
@@ -54,7 +56,7 @@ public class ThriftClientBeanPostProcessor implements org.springframework.beans.
         Class clazz = bean.getClass();
         do {
             for (Field field : clazz.getDeclaredFields()) {
-                if (field.isAnnotationPresent(ThriftClient.class)) {
+                if (field.isAnnotationPresent(ThriftClientsMap.class)) {
                     beansToProcess.put(beanName, clazz);
                 }
             }
@@ -68,23 +70,20 @@ public class ThriftClientBeanPostProcessor implements org.springframework.beans.
         if (beansToProcess.containsKey(beanName)) {
             Object target = getTargetBean(bean);
             for (Field field : beansToProcess.get(beanName).getDeclaredFields()) {
-                ThriftClient annotation = AnnotationUtils.getAnnotation(field, ThriftClient.class);
+                ThriftClientsMap annotation = AnnotationUtils.getAnnotation(field, ThriftClientsMap.class);
 
                 if (null != annotation) {
-                    if (beanFactory.containsBean(field.getName())) {
-                        ReflectionUtils.makeAccessible(field);
-                        ReflectionUtils.setField(field, target, beanFactory.getBean(field.getName()));
-                    } else {
-                        ProxyFactory proxyFactory = getProxyFactoryForThriftClient(target, field);
-
-                        addPoolAdvice(proxyFactory, annotation);
+                    HashMap clients = new HashMap();
+                    for (Map.Entry<String, ThriftClientKey> entry : ((AbstractThriftClientKeyMapper)beanFactory.getBean(annotation.mapperClass())).getMappings().entrySet()) {
+                        ProxyFactory proxyFactory = getProxyFactoryForThriftClient(bean, field, entry.getValue().getClazz());
+                        addPoolAdvice(proxyFactory, entry.getValue());
 
                         proxyFactory.setFrozen(true);
                         proxyFactory.setProxyTargetClass(true);
-
-                        ReflectionUtils.makeAccessible(field);
-                        ReflectionUtils.setField(field, target, proxyFactory.getProxy());
+                        clients.put(entry.getKey(), proxyFactory.getProxy());
                     }
+                    ReflectionUtils.makeAccessible(field);
+                    ReflectionUtils.setField(field, bean, clients);
                 }
             }
         }
@@ -101,12 +100,12 @@ public class ThriftClientBeanPostProcessor implements org.springframework.beans.
         return target;
     }
 
-    private ProxyFactory getProxyFactoryForThriftClient(Object bean, Field field) {
+    private ProxyFactory getProxyFactoryForThriftClient(Object bean, Field field, Class clazz) {
         ProxyFactory proxyFactory = null;
         try {
             proxyFactory = new ProxyFactory(
                     BeanUtils.instantiateClass(
-                            field.getType().getConstructor(TProtocol.class),
+                            clazz.getConstructor(TProtocol.class),
                             (TProtocol) null
                     )
             );
@@ -117,26 +116,18 @@ public class ThriftClientBeanPostProcessor implements org.springframework.beans.
     }
 
     @SuppressWarnings("unchecked")
-    private void addPoolAdvice(ProxyFactory proxyFactory, ThriftClient annotation) {
+    private void addPoolAdvice(ProxyFactory proxyFactory, ThriftClientKey key) {
         proxyFactory.addAdvice((MethodInterceptor) methodInvocation -> {
             Object[] args = methodInvocation.getArguments();
 
-            Class<? extends TServiceClient> declaringClass = (Class<? extends TServiceClient>) methodInvocation.getMethod().getDeclaringClass();
-
             TServiceClient thriftClient = null;
-
-            ThriftClientKey key = ThriftClientKey.builder()
-                    .clazz(declaringClass)
-                    .serviceName(annotation.serviceId())
-                    .path(annotation.path())
-                    .build();
 
             try {
                 thriftClient = thriftClientsPool.borrowObject(key);
                 return ReflectionUtils.invokeMethod(methodInvocation.getMethod(), thriftClient, args);
             } catch (UndeclaredThrowableException e) {
                 if (TException.class.isAssignableFrom(e.getUndeclaredThrowable().getClass()))
-                    throw (TException)e.getUndeclaredThrowable();
+                    throw (TException) e.getUndeclaredThrowable();
                 throw e;
             } finally {
                 if (null != thriftClient)
@@ -144,5 +135,4 @@ public class ThriftClientBeanPostProcessor implements org.springframework.beans.
             }
         });
     }
-
 }

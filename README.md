@@ -22,6 +22,7 @@ compile 'info.developerblog.spring.thrift:spring-thrift-starter:0.9.3'
 
 ## How to use this
 
+### Server-side
 Annotation @ThriftHandler("servlet_path") helps you building server controller for request processing
 
 ```
@@ -34,15 +35,23 @@ public class TGreetingServiceHandler implements TGreetingService.Iface {
     }
 }
 ```
-
-Other annotation @ThriftClient(serviceId = "registered_service", (path) = "server_handler_path") helps you with multithreaded client with full Spring Cloud support.
-
+### Client-side
+@ThriftClient(serviceId = "registered_service", (path) = "server_handler_path") helps you with multithreaded client with full Spring Cloud support.
 ```
 @ThriftClient(serviceId = "greeting-service", path = "/api")
 TGreetingService.Client client;
 ```
 
-###Thrift Client configuration
+@ThriftClientsMap(mapperClass) annotation helps to create a string-keyed map of clients for a set of services having the same interface, allowing to define the concrete callee instance at runtime:
+```
+@ThriftClientsMap(mapperClass = SampleMapper.class)
+Map<String, TGreetingService.Client> clientsMap;
+```
+Mapper class requirements:
+* must extend AbstractThriftClientKeyMapper
+* must be registered as a bean in the application context
+
+####Thrift Client configuration
 
 ```
 greeting-service:                     #service name
