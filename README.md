@@ -17,7 +17,7 @@ repositories {
 ```
 
 ```
-compile 'info.developerblog.spring.thrift:spring-thrift-starter:0.9.3'
+compile 'info.developerblog.spring.thrift:spring-thrift-starter:0.10.0'
 ```
 
 ## How to use this
