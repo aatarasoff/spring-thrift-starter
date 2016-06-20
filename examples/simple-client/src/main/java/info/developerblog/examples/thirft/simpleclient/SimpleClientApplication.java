@@ -24,9 +24,4 @@ public class SimpleClientApplication {
 
     @ThriftClient(serviceId = "greeting-service", path = "/api")
     TGreetingService.Client client;
-
-    @RequestMapping(value = "/fee")
-    public String simpleTestFee() throws TException {
-        return client.greet(new TName("John", "Stark"));
-    }
 }

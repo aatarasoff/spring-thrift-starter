@@ -45,7 +45,6 @@ public class PoolConfiguration {
     private Tracer tracer;
 
     @Bean
-    @ConditionalOnMissingBean(name = "thriftClientsPool")
     public KeyedObjectPool<ThriftClientKey, TServiceClient> thriftClientsPool() {
         GenericKeyedObjectPoolConfig poolConfig = new GenericKeyedObjectPoolConfig();
         poolConfig.setJmxEnabled(false); //cause spring will autodetect itself

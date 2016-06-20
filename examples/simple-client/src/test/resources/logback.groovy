@@ -23,7 +23,7 @@ logger("info.developerblog", INFO)
 
 appender("CONSOLE", ConsoleAppender) {
     encoder(PatternLayoutEncoder) {
-        pattern = "%-4r [%thread] %-5level %X{request_id} - %msg%n"
+        pattern = "%-4r [%thread] %-5level %X{X-B3-TraceId:-} - %msg%n"
     }
 }
 
