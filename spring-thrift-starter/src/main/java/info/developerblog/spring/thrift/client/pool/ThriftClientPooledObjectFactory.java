@@ -104,11 +104,11 @@ public class ThriftClientPooledObjectFactory extends BaseKeyedPooledObjectFactor
             TTransport transport = p.getObject().getOutputProtocol().getTransport();
 
             if (transport instanceof THttpClient) {
-                ((THttpClient)transport).setCustomHeader(requestIdLogger.getRequestIdHeader(), (String) requestId.get());
                 ((THttpClient)transport).setCustomHeaders(headers);
+                ((THttpClient)transport).setCustomHeader(requestIdLogger.getRequestIdHeader(), (String) requestId.get());
             } else {
-                ((TLoadBalancerClient)transport).setCustomHeader(requestIdLogger.getRequestIdHeader(), (String) requestId.get());
                 ((TLoadBalancerClient)transport).setCustomHeaders(headers);
+                ((TLoadBalancerClient)transport).setCustomHeader(requestIdLogger.getRequestIdHeader(), (String) requestId.get());
             }
         }
     }
