@@ -1,9 +1,8 @@
 package info.developerblog.spring.thrift.client.pool;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Strings;
 import info.developerblog.spring.thrift.transport.TLoadBalancerClient;
 import lombok.Builder;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.pool2.BaseKeyedPooledObjectFactory;
 import org.apache.commons.pool2.PooledObject;
 import org.apache.commons.pool2.impl.DefaultPooledObject;
@@ -15,8 +14,14 @@ import org.apache.thrift.transport.THttpClient;
 import org.apache.thrift.transport.TTransport;
 import org.springframework.beans.BeanUtils;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
+import org.springframework.cloud.sleuth.Span;
+import org.springframework.cloud.sleuth.Tracer;
 import org.springframework.core.env.PropertyResolver;
 import ru.trylogic.spring.boot.thrift.beans.RequestIdLogger;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * Created by aleksandr on 14.07.15.
@@ -29,6 +34,7 @@ public class ThriftClientPooledObjectFactory extends BaseKeyedPooledObjectFactor
     private LoadBalancerClient loadBalancerClient;
     private PropertyResolver propertyResolver;
     private RequestIdLogger requestIdLogger;
+    private Tracer tracer;
 
     @Override
     public TServiceClient create(ThriftClientKey key) throws Exception {
@@ -41,7 +47,25 @@ public class ThriftClientPooledObjectFactory extends BaseKeyedPooledObjectFactor
 
         TProtocol protocol;
 
-        if (Strings.isNullOrEmpty(endpoint)) {
+        Span span = this.tracer.createSpan(key.getServiceName());
+        Map<String, String> headers = new HashMap<>();
+
+        if (span == null) {
+            headers.put(Span.SAMPLED_NAME, Span.SPAN_NOT_SAMPLED);
+        } else {
+            headers.put(Span.TRACE_ID_NAME, Span.idToHex(span.getTraceId()));
+            headers.put(Span.SPAN_NAME_NAME, span.getName());
+            headers.put(Span.SPAN_ID_NAME, Span.idToHex(span.getSpanId()));
+            headers.put(Span.SAMPLED_NAME, span.isExportable() ?
+                    Span.SPAN_SAMPLED : Span.SPAN_NOT_SAMPLED);
+            Long parentId = getParentId(span);
+            if (parentId != null) {
+                headers.put(Span.PARENT_ID_NAME, Span.idToHex(parentId));
+            }
+            headers.put(Span.PROCESS_ID_NAME, span.getProcessId());
+        }
+
+        if (StringUtils.isNotEmpty(endpoint)) {
             final TLoadBalancerClient loadBalancerClient = new TLoadBalancerClient(
                     this.loadBalancerClient,
                     serviceName,
@@ -49,12 +73,14 @@ public class ThriftClientPooledObjectFactory extends BaseKeyedPooledObjectFactor
             );
             loadBalancerClient.setConnectTimeout(connectTimeout);
             loadBalancerClient.setReadTimeout(readTimeout);
+            loadBalancerClient.setCustomHeaders(headers);
 
             protocol = protocolFactory.getProtocol(loadBalancerClient);
         } else {
             final THttpClient httpClient = new THttpClient(endpoint);
             httpClient.setConnectTimeout(connectTimeout);
             httpClient.setReadTimeout(readTimeout);
+            httpClient.setCustomHeaders(headers);
 
             protocol = protocolFactory.getProtocol(httpClient);
         }
@@ -74,7 +100,7 @@ public class ThriftClientPooledObjectFactory extends BaseKeyedPooledObjectFactor
     public void activateObject(ThriftClientKey key, PooledObject<TServiceClient> p) throws Exception {
         super.activateObject(key, p);
 
-        Optional requestId = Optional.fromNullable(MDC.get(requestIdLogger.getMDCKey()));
+        Optional requestId = Optional.ofNullable(MDC.get(requestIdLogger.getMDCKey()));
 
         if (requestId.isPresent()) {
             TTransport transport = p.getObject().getOutputProtocol().getTransport();
@@ -107,5 +133,9 @@ public class ThriftClientPooledObjectFactory extends BaseKeyedPooledObjectFactor
         p.getObject().getOutputProtocol().reset();
         p.getObject().getInputProtocol().getTransport().close();
         p.getObject().getOutputProtocol().getTransport().close();
+    }
+
+    private Long getParentId(Span span) {
+        return !span.getParents().isEmpty() ? span.getParents().get(0) : null;
     }
 }

@@ -7,7 +7,7 @@ dependencies {
     compile "org.springframework.boot:spring-boot-starter-web"
     compile "org.springframework.boot:spring-boot-starter-actuator"
     compile "org.springframework.cloud:spring-cloud-starter-ribbon"
-    compile "org.springframework.cloud:spring-cloud-sleuth-zipkin"
+    compile "org.springframework.cloud:spring-cloud-starter-zipkin"
     compile "com.squareup.okio:okio"
 
     compile 'org.apache.commons:commons-pool2:2.4.1'

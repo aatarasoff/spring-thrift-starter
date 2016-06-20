@@ -21,6 +21,7 @@ import org.springframework.beans.InvalidPropertyException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.context.annotation.Configuration;
@@ -36,9 +37,9 @@ import org.springframework.util.ReflectionUtils;
 
 @Component
 @Configuration
-@Import(PoolConfiguration.class)
 @ConditionalOnClass(ThriftClientsMap.class)
 @ConditionalOnWebApplication
+@AutoConfigureAfter(PoolConfiguration.class)
 public class ThriftClientsMapBeanPostProcessor implements BeanPostProcessor {
     private Map<String, Class> beansToProcess = new HashMap<>();
 
