@@ -47,24 +47,6 @@ public class ThriftClientPooledObjectFactory extends BaseKeyedPooledObjectFactor
 
         TProtocol protocol;
 
-        Span span = this.tracer.createSpan(key.getServiceName());
-        Map<String, String> headers = new HashMap<>();
-
-        if (span == null) {
-            headers.put(Span.SAMPLED_NAME, Span.SPAN_NOT_SAMPLED);
-        } else {
-            headers.put(Span.TRACE_ID_NAME, Span.idToHex(span.getTraceId()));
-            headers.put(Span.SPAN_NAME_NAME, span.getName());
-            headers.put(Span.SPAN_ID_NAME, Span.idToHex(span.getSpanId()));
-            headers.put(Span.SAMPLED_NAME, span.isExportable() ?
-                    Span.SPAN_SAMPLED : Span.SPAN_NOT_SAMPLED);
-            Long parentId = getParentId(span);
-            if (parentId != null) {
-                headers.put(Span.PARENT_ID_NAME, Span.idToHex(parentId));
-            }
-            headers.put(Span.PROCESS_ID_NAME, span.getProcessId());
-        }
-
         if (StringUtils.isEmpty(endpoint)) {
             final TLoadBalancerClient loadBalancerClient = new TLoadBalancerClient(
                     this.loadBalancerClient,
@@ -73,14 +55,12 @@ public class ThriftClientPooledObjectFactory extends BaseKeyedPooledObjectFactor
             );
             loadBalancerClient.setConnectTimeout(connectTimeout);
             loadBalancerClient.setReadTimeout(readTimeout);
-            loadBalancerClient.setCustomHeaders(headers);
 
             protocol = protocolFactory.getProtocol(loadBalancerClient);
         } else {
             final THttpClient httpClient = new THttpClient(endpoint);
             httpClient.setConnectTimeout(connectTimeout);
             httpClient.setReadTimeout(readTimeout);
-            httpClient.setCustomHeaders(headers);
 
             protocol = protocolFactory.getProtocol(httpClient);
         }
@@ -100,6 +80,24 @@ public class ThriftClientPooledObjectFactory extends BaseKeyedPooledObjectFactor
     public void activateObject(ThriftClientKey key, PooledObject<TServiceClient> p) throws Exception {
         super.activateObject(key, p);
 
+        Span span = this.tracer.createSpan(key.getServiceName());
+        Map<String, String> headers = new HashMap<>();
+
+        if (span == null) {
+            headers.put(Span.SAMPLED_NAME, Span.SPAN_NOT_SAMPLED);
+        } else {
+            headers.put(Span.TRACE_ID_NAME, Span.idToHex(span.getTraceId()));
+            headers.put(Span.SPAN_NAME_NAME, span.getName());
+            headers.put(Span.SPAN_ID_NAME, Span.idToHex(span.getSpanId()));
+            headers.put(Span.SAMPLED_NAME, span.isExportable() ?
+                    Span.SPAN_SAMPLED : Span.SPAN_NOT_SAMPLED);
+            Long parentId = getParentId(span);
+            if (parentId != null) {
+                headers.put(Span.PARENT_ID_NAME, Span.idToHex(parentId));
+            }
+            headers.put(Span.PROCESS_ID_NAME, span.getProcessId());
+        }
+
         Optional requestId = Optional.ofNullable(MDC.get(requestIdLogger.getMDCKey()));
 
         if (requestId.isPresent()) {
@@ -107,8 +105,10 @@ public class ThriftClientPooledObjectFactory extends BaseKeyedPooledObjectFactor
 
             if (transport instanceof THttpClient) {
                 ((THttpClient)transport).setCustomHeader(requestIdLogger.getRequestIdHeader(), (String) requestId.get());
+                ((THttpClient)transport).setCustomHeaders(headers);
             } else {
                 ((TLoadBalancerClient)transport).setCustomHeader(requestIdLogger.getRequestIdHeader(), (String) requestId.get());
+                ((TLoadBalancerClient)transport).setCustomHeaders(headers);
             }
         }
     }
