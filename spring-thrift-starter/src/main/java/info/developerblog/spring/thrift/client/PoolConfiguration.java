@@ -11,6 +11,7 @@ import org.apache.thrift.protocol.TProtocolFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.cloud.sleuth.Tracer;
 import org.springframework.cloud.sleuth.autoconfig.TraceAutoConfiguration;
@@ -41,20 +42,17 @@ public class PoolConfiguration {
     private RequestIdLogger requestIdLogger;
 
     @Autowired
-    private KeyedPooledObjectFactory<ThriftClientKey, TServiceClient> thriftClientPoolFactory;
-
-    @Autowired
     private Tracer tracer;
 
     @Bean
+    @ConditionalOnMissingBean(name = "thriftClientsPool")
     public KeyedObjectPool<ThriftClientKey, TServiceClient> thriftClientsPool() {
         GenericKeyedObjectPoolConfig poolConfig = new GenericKeyedObjectPoolConfig();
         poolConfig.setJmxEnabled(false); //cause spring will autodetect itself
-        return new ThriftClientPool(thriftClientPoolFactory, poolConfig);
+        return new ThriftClientPool(thriftClientPoolFactory(), poolConfig);
     }
 
-    @Bean
-    public KeyedPooledObjectFactory thriftClientPoolFactory() {
+    private KeyedPooledObjectFactory<ThriftClientKey, TServiceClient> thriftClientPoolFactory() {
         return ThriftClientPooledObjectFactory
                 .builder()
                 .protocolFactory(protocolFactory)

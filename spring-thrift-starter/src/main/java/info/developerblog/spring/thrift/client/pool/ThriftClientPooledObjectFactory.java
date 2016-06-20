@@ -65,7 +65,7 @@ public class ThriftClientPooledObjectFactory extends BaseKeyedPooledObjectFactor
             headers.put(Span.PROCESS_ID_NAME, span.getProcessId());
         }
 
-        if (StringUtils.isNotEmpty(endpoint)) {
+        if (StringUtils.isEmpty(endpoint)) {
             final TLoadBalancerClient loadBalancerClient = new TLoadBalancerClient(
                     this.loadBalancerClient,
                     serviceName,
