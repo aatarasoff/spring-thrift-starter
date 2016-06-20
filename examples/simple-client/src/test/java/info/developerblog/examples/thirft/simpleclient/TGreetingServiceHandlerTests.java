@@ -52,10 +52,6 @@ public class TGreetingServiceHandlerTests {
     @Test
     public void testSimpleCall() throws Exception {
         assertEquals("Hello John Smith", greetingService.getGreeting("Smith", "John"));
-
-        mockMvc.perform(
-                MockMvcRequestBuilders.request(HttpMethod.GET, "/fee")
-        ).andReturn();
     }
 
     @Test(expected = TTransportException.class)

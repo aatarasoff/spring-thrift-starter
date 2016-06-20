@@ -20,8 +20,11 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.InvalidPropertyException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
+import org.springframework.cloud.sleuth.autoconfig.TraceAutoConfiguration;
+import org.springframework.cloud.sleuth.instrument.hystrix.SleuthHystrixAutoConfiguration;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.annotation.AnnotationUtils;
@@ -34,9 +37,9 @@ import org.springframework.util.ReflectionUtils;
 
 @Component
 @Configuration
-@Import(PoolConfiguration.class)
 @ConditionalOnClass(ThriftClient.class)
 @ConditionalOnWebApplication
+@AutoConfigureAfter(PoolConfiguration.class)
 public class ThriftClientBeanPostProcessor implements org.springframework.beans.factory.config.BeanPostProcessor {
     private Map<String, Class> beansToProcess = new HashMap<>();
 

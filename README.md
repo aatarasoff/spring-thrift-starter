@@ -17,7 +17,7 @@ repositories {
 ```
 
 ```
-compile 'info.developerblog.spring.thrift:spring-thrift-starter:0.10.0'
+compile 'info.developerblog.spring.thrift:spring-thrift-starter:1.0.0.RC1'
 ```
 
 ## How to use this
@@ -51,7 +51,7 @@ Mapper class requirements:
 * must extend AbstractThriftClientKeyMapper
 * must be registered as a bean in the application context
 
-####Thrift Client configuration
+#### Thrift Client configuration
 
 ```
 greeting-service:                     #service name
@@ -66,6 +66,11 @@ greeting-service:                     #service name
 If you use service discovery backend (as Eureka or Consul) only path maybe needed.
 
 See tests for better understanding.
+
+### Sleuth support
+Since 1.0.0.RC1 starter have supported [Spring Cloud Sleuth](https://cloud.spring.io/spring-cloud-sleuth) for tracing.
+
+`RequestIdFilter` and `RequestIdLogger` is deprecated and will be eliminated in 1.1.+ version of this starter.
 
 ## Special thanks to
 

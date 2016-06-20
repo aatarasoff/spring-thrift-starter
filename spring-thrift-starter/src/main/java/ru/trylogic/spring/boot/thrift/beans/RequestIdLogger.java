@@ -1,6 +1,6 @@
 package ru.trylogic.spring.boot.thrift.beans;
 
-import com.google.common.base.Strings;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.Instant;
@@ -11,6 +11,7 @@ import static org.slf4j.MDC.remove;
 /**
  * Created by aleksandr on 18.02.16.
  */
+@Deprecated
 public class RequestIdLogger {
 
   private static final String DEFAULT_MDC_KEY = "request_id";
@@ -38,7 +39,7 @@ public class RequestIdLogger {
 
   protected String getXRequestId(HttpServletRequest request) {
     String requestId = request.getHeader(getRequestIdHeader());
-    if (Strings.isNullOrEmpty(requestId)) {
+    if (StringUtils.isEmpty(requestId)) {
       return generateXRequestId();
     }
     return requestId;
