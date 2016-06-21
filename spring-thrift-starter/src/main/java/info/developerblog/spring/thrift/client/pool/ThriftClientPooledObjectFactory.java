@@ -5,7 +5,6 @@ import lombok.Builder;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.pool2.BaseKeyedPooledObjectFactory;
 import org.apache.commons.pool2.PooledObject;
-import org.apache.commons.pool2.impl.DefaultPooledObject;
 import org.apache.log4j.MDC;
 import org.apache.thrift.TServiceClient;
 import org.apache.thrift.protocol.TProtocol;
@@ -73,16 +72,67 @@ public class ThriftClientPooledObjectFactory extends BaseKeyedPooledObjectFactor
 
     @Override
     public PooledObject<TServiceClient> wrap(TServiceClient value) {
-        return new DefaultPooledObject<>(value);
+        return new ThriftClientPooledObject<>(value);
     }
 
     @Override
     public void activateObject(ThriftClientKey key, PooledObject<TServiceClient> p) throws Exception {
         super.activateObject(key, p);
+        ThriftClientPooledObject<TServiceClient> pooledObject = (ThriftClientPooledObject<TServiceClient>) p;
 
         Span span = this.tracer.createSpan(key.getServiceName());
-        Map<String, String> headers = new HashMap<>();
+        Map<String, String> headers = sleuthHeaders(span);
 
+        Optional<String> requestId = Optional.ofNullable((String) MDC.get(requestIdLogger.getMDCKey()));
+        requestId.ifPresent(reqId -> {
+            headers.put(requestIdLogger.getRequestIdHeader(), reqId);
+        });
+
+        TTransport transport = pooledObject.getObject().getOutputProtocol().getTransport();
+        span.logEvent(Span.CLIENT_SEND);
+        pooledObject.setSpan(span);
+        if (transport instanceof THttpClient) {
+            ((THttpClient)transport).setCustomHeaders(headers);
+        } else {
+            ((TLoadBalancerClient)transport).setCustomHeaders(headers);
+        }
+    }
+
+    @Override
+    public void passivateObject(ThriftClientKey key, PooledObject<TServiceClient> p) throws Exception {
+        ThriftClientPooledObject<TServiceClient> pooledObject = (ThriftClientPooledObject<TServiceClient>) p;
+        TTransport transport = pooledObject.getObject().getOutputProtocol().getTransport();
+
+        if (transport instanceof THttpClient) {
+            ((THttpClient)transport).setCustomHeaders(null);
+        } else {
+            ((TLoadBalancerClient)transport).setCustomHeaders(null);
+        }
+
+        resetAndClose(p);
+
+        super.passivateObject(key, pooledObject);
+
+        if (this.tracer.isTracing()) {
+            Span span = pooledObject.getSpan();
+            span.logEvent(Span.CLIENT_RECV);
+            this.tracer.close(span);
+        }
+    }
+
+    private void resetAndClose(PooledObject<TServiceClient> p) {
+        p.getObject().getInputProtocol().reset();
+        p.getObject().getOutputProtocol().reset();
+        p.getObject().getInputProtocol().getTransport().close();
+        p.getObject().getOutputProtocol().getTransport().close();
+    }
+
+    private Long getParentId(Span span) {
+        return !span.getParents().isEmpty() ? span.getParents().get(0) : null;
+    }
+
+    private Map<String, String> sleuthHeaders(Span span) {
+        Map<String, String> headers = new HashMap<>();
         if (span == null) {
             headers.put(Span.SAMPLED_NAME, Span.SPAN_NOT_SAMPLED);
         } else {
@@ -97,45 +147,6 @@ public class ThriftClientPooledObjectFactory extends BaseKeyedPooledObjectFactor
             }
             headers.put(Span.PROCESS_ID_NAME, span.getProcessId());
         }
-
-        Optional requestId = Optional.ofNullable(MDC.get(requestIdLogger.getMDCKey()));
-
-        if (requestId.isPresent()) {
-            TTransport transport = p.getObject().getOutputProtocol().getTransport();
-
-            if (transport instanceof THttpClient) {
-                ((THttpClient)transport).setCustomHeaders(headers);
-                ((THttpClient)transport).setCustomHeader(requestIdLogger.getRequestIdHeader(), (String) requestId.get());
-            } else {
-                ((TLoadBalancerClient)transport).setCustomHeaders(headers);
-                ((TLoadBalancerClient)transport).setCustomHeader(requestIdLogger.getRequestIdHeader(), (String) requestId.get());
-            }
-        }
-    }
-
-    @Override
-    public void passivateObject(ThriftClientKey key, PooledObject<TServiceClient> p) throws Exception {
-        TTransport transport = p.getObject().getOutputProtocol().getTransport();
-
-        if (transport instanceof THttpClient) {
-            ((THttpClient)transport).setCustomHeaders(null);
-        } else {
-            ((TLoadBalancerClient)transport).setCustomHeaders(null);
-        }
-
-        resetAndClose(p);
-
-        super.passivateObject(key, p);
-    }
-
-    private void resetAndClose(PooledObject<TServiceClient> p) {
-        p.getObject().getInputProtocol().reset();
-        p.getObject().getOutputProtocol().reset();
-        p.getObject().getInputProtocol().getTransport().close();
-        p.getObject().getOutputProtocol().getTransport().close();
-    }
-
-    private Long getParentId(Span span) {
-        return !span.getParents().isEmpty() ? span.getParents().get(0) : null;
+        return headers;
     }
 }
