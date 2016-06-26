@@ -8,10 +8,9 @@ dependencies {
     compile "org.springframework.boot:spring-boot-starter-actuator"
     compile "org.springframework.cloud:spring-cloud-starter-ribbon"
     compile "org.springframework.cloud:spring-cloud-starter-zipkin"
-    compile "com.squareup.okio:okio"
 
-    compile 'org.apache.commons:commons-pool2:2.4.1'
-    compile 'org.apache.commons:commons-lang3:3.4'
+    compile 'org.apache.commons:commons-pool2'
+    compile 'org.apache.commons:commons-lang3'
 }
 
 task sourceJar(type: Jar) {
