@@ -1,5 +1,6 @@
 package info.developerblog.spring.thrift.client;
 
+import info.developerblog.spring.thrift.ThriftClientAutoConfiguration;
 import info.developerblog.spring.thrift.client.pool.ThriftClientKey;
 import info.developerblog.spring.thrift.client.pool.ThriftClientPool;
 import info.developerblog.spring.thrift.client.pool.ThriftClientPooledObjectFactory;
@@ -8,24 +9,24 @@ import org.apache.commons.pool2.KeyedPooledObjectFactory;
 import org.apache.commons.pool2.impl.GenericKeyedObjectPoolConfig;
 import org.apache.thrift.TServiceClient;
 import org.apache.thrift.protocol.TProtocolFactory;
+import org.apache.thrift.transport.TTransport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
+import org.springframework.cloud.sleuth.SpanInjector;
 import org.springframework.cloud.sleuth.Tracer;
 import org.springframework.cloud.sleuth.autoconfig.TraceAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.PropertyResolver;
-import ru.trylogic.spring.boot.thrift.beans.RequestIdLogger;
 
 /**
  * @author jihor (jihor@ya.ru)
  *         Created on 2016-06-14
  */
 @Configuration
-@AutoConfigureAfter(TraceAutoConfiguration.class)
+@AutoConfigureAfter({ TraceAutoConfiguration.class, ThriftClientAutoConfiguration.class })
 @ConditionalOnBean(Tracer.class)
 public class PoolConfiguration {
 
@@ -39,10 +40,10 @@ public class PoolConfiguration {
     private PropertyResolver propertyResolver;
 
     @Autowired
-    private RequestIdLogger requestIdLogger;
+    private Tracer tracer;
 
     @Autowired
-    private Tracer tracer;
+    private SpanInjector<TTransport> thriftTransportSpanInjector;
 
     @Bean
     public KeyedObjectPool<ThriftClientKey, TServiceClient> thriftClientsPool() {
@@ -57,8 +58,8 @@ public class PoolConfiguration {
                 .protocolFactory(protocolFactory)
                 .propertyResolver(propertyResolver)
                 .loadBalancerClient(loadBalancerClient)
-                .requestIdLogger(requestIdLogger)
                 .tracer(tracer)
+                .spanInjector(thriftTransportSpanInjector)
                 .build();
     }
 

@@ -5,7 +5,6 @@ import lombok.Builder;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.pool2.BaseKeyedPooledObjectFactory;
 import org.apache.commons.pool2.PooledObject;
-import org.apache.log4j.MDC;
 import org.apache.thrift.TServiceClient;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.protocol.TProtocolFactory;
@@ -14,13 +13,9 @@ import org.apache.thrift.transport.TTransport;
 import org.springframework.beans.BeanUtils;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.cloud.sleuth.Span;
+import org.springframework.cloud.sleuth.SpanInjector;
 import org.springframework.cloud.sleuth.Tracer;
 import org.springframework.core.env.PropertyResolver;
-import ru.trylogic.spring.boot.thrift.beans.RequestIdLogger;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
 
 /**
  * Created by aleksandr on 14.07.15.
@@ -32,8 +27,8 @@ public class ThriftClientPooledObjectFactory extends BaseKeyedPooledObjectFactor
     private TProtocolFactory protocolFactory;
     private LoadBalancerClient loadBalancerClient;
     private PropertyResolver propertyResolver;
-    private RequestIdLogger requestIdLogger;
     private Tracer tracer;
+    private SpanInjector<TTransport> spanInjector;
 
     @Override
     public TServiceClient create(ThriftClientKey key) throws Exception {
@@ -81,21 +76,12 @@ public class ThriftClientPooledObjectFactory extends BaseKeyedPooledObjectFactor
         ThriftClientPooledObject<TServiceClient> pooledObject = (ThriftClientPooledObject<TServiceClient>) p;
 
         Span span = this.tracer.createSpan(key.getServiceName());
-        Map<String, String> headers = sleuthHeaders(span);
 
-        Optional<String> requestId = Optional.ofNullable((String) MDC.get(requestIdLogger.getMDCKey()));
-        requestId.ifPresent(reqId -> {
-            headers.put(requestIdLogger.getRequestIdHeader(), reqId);
-        });
-
-        TTransport transport = pooledObject.getObject().getOutputProtocol().getTransport();
         span.logEvent(Span.CLIENT_SEND);
         pooledObject.setSpan(span);
-        if (transport instanceof THttpClient) {
-            ((THttpClient)transport).setCustomHeaders(headers);
-        } else {
-            ((TLoadBalancerClient)transport).setCustomHeaders(headers);
-        }
+
+        TTransport transport = pooledObject.getObject().getOutputProtocol().getTransport();
+        spanInjector.inject(span, transport);
     }
 
     @Override
@@ -125,28 +111,5 @@ public class ThriftClientPooledObjectFactory extends BaseKeyedPooledObjectFactor
         p.getObject().getOutputProtocol().reset();
         p.getObject().getInputProtocol().getTransport().close();
         p.getObject().getOutputProtocol().getTransport().close();
-    }
-
-    private Long getParentId(Span span) {
-        return !span.getParents().isEmpty() ? span.getParents().get(0) : null;
-    }
-
-    private Map<String, String> sleuthHeaders(Span span) {
-        Map<String, String> headers = new HashMap<>();
-        if (span == null) {
-            headers.put(Span.SAMPLED_NAME, Span.SPAN_NOT_SAMPLED);
-        } else {
-            headers.put(Span.TRACE_ID_NAME, Span.idToHex(span.getTraceId()));
-            headers.put(Span.SPAN_NAME_NAME, span.getName());
-            headers.put(Span.SPAN_ID_NAME, Span.idToHex(span.getSpanId()));
-            headers.put(Span.SAMPLED_NAME, span.isExportable() ?
-                    Span.SPAN_SAMPLED : Span.SPAN_NOT_SAMPLED);
-            Long parentId = getParentId(span);
-            if (parentId != null) {
-                headers.put(Span.PARENT_ID_NAME, Span.idToHex(parentId));
-            }
-            headers.put(Span.PROCESS_ID_NAME, span.getProcessId());
-        }
-        return headers;
     }
 }
