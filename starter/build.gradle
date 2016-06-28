@@ -2,6 +2,8 @@ apply plugin: 'maven-publish'
 apply plugin: 'com.jfrog.bintray'
 
 dependencies {
+    compile project(':autoconfigure')
+
     compile 'org.apache.thrift:libthrift'
 
     compile "org.springframework.boot:spring-boot-starter-web"
@@ -20,6 +22,8 @@ task sourceJar(type: Jar) {
 publishing {
     publications {
         mavenJava(MavenPublication) {
+            artifactId 'spring-thrift-starter'
+
             from components.java
 
             artifact sourceJar {
