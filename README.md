@@ -17,17 +17,17 @@ repositories {
 ```
 
 ```
-compile 'info.developerblog.spring.thrift:spring-thrift-starter:1.0.0.RC4'
+compile 'info.developerblog.spring.thrift:spring-thrift-starter:1.0.0.RC5'
 ```
 
 ## How to use this
 
 ### Server-side
-Annotation @ThriftHandler("servlet_path") helps you building server controller for request processing
+Annotation @ThriftController("servlet_path") helps you building server controller for request processing
 
 ```
-@ThriftHandler("/api")
-public class TGreetingServiceHandler implements TGreetingService.Iface {
+@ThriftController("/api")
+public class TGreetingServiceController implements TGreetingService.Iface {
 
     @Override
     public String greet(TName name) throws TException {
