@@ -2,6 +2,7 @@ package info.developerblog.spring.thrift.transport;
 
 import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.TTransportException;
+import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 
 import java.io.ByteArrayOutputStream;
@@ -98,9 +99,16 @@ public class TLoadBalancerClient extends TTransport {
         this.requestBuffer_.reset();
 
         try {
+            ServiceInstance serviceInstance = this.loadBalancerClient.choose(serviceName);
+
+            if (serviceInstance == null) {
+                throw new TTransportException(TTransportException.NOT_OPEN, "No one service instance is available");
+            }
+
             HttpURLConnection iox =
-                    (HttpURLConnection) new URL(this.loadBalancerClient.choose(serviceName)
-                            .getUri().toString() + path).openConnection();
+                    (HttpURLConnection) new URL(
+                            serviceInstance.getUri().toString() + path
+                    ).openConnection();
             if (this.connectTimeout_ > 0) {
                 iox.setConnectTimeout(this.connectTimeout_);
             }
