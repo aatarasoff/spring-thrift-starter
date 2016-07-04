@@ -61,4 +61,9 @@ public class TGreetingServiceHandlerTests {
         greetingService.getGreetingForKey("key2", "Doe", "Jane");
     }
 
+    @Test(expected = TTransportException.class)
+    public void testMisconfigurableClient() throws Exception {
+        greetingService.getGreetingWithMisconfguration("Doe", "John");
+    }
+
 }
