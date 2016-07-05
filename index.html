@@ -1,51 +1,61 @@
-<!DOCTYPE html>
-<html lang="en-us">
+<!doctype html>
+<html>
   <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <title>Apache Thrift Starter for Spring Boot by aatarasoff</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
-    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
-    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/github-light.css">
+    <meta name="viewport" content="width=device-width">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
   </head>
   <body>
-    <section class="page-header">
-      <h1 class="project-name">Apache Thrift Starter for Spring Boot</h1>
-      <h2 class="project-tagline"></h2>
-      <a href="https://github.com/aatarasoff/spring-thrift-starter" class="btn">View on GitHub</a>
-      <a href="https://github.com/aatarasoff/spring-thrift-starter/zipball/master" class="btn">Download .zip</a>
-      <a href="https://github.com/aatarasoff/spring-thrift-starter/tarball/master" class="btn">Download .tar.gz</a>
-    </section>
+    <div class="wrapper">
+      <header>
+        <h1>Apache Thrift Starter for Spring Boot</h1>
+        <p>Set of cool annotations that helps you building Thrift applications with Spring Boot.</p>
 
-    <section class="main-content">
-      <h2>
-<a id="what-is-it" class="anchor" href="#what-is-it" aria-hidden="true"><span class="octicon octicon-link"></span></a>What is it</h2>
+        <p class="view"><a href="https://github.com/aatarasoff/spring-thrift-starter">View the Project on GitHub <small>aatarasoff/spring-thrift-starter</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/aatarasoff/spring-thrift-starter/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/aatarasoff/spring-thrift-starter/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/aatarasoff/spring-thrift-starter">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h2>
+<a id="what-it-is-about" class="anchor" href="#what-it-is-about" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>What it is about</h2>
 
 <p>Set of cool annotations that helps you building Thrift applications with Spring Boot.</p>
 
 <h2>
-<a id="how-connect-project" class="anchor" href="#how-connect-project" aria-hidden="true"><span class="octicon octicon-link"></span></a>How connect project</h2>
+<a id="how-to-connect-the-project" class="anchor" href="#how-to-connect-the-project" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>How to connect the project</h2>
 
 <p>Its very simple:</p>
 
 <pre><code>repositories {
-    maven {
-        url  "http://dl.bintray.com/aatarasoff/maven"
-    }
+    jcenter()
 }
 </code></pre>
 
-<pre><code>compile 'info.developerblog.spring.thrift:spring-thrift-starter:0.1.3'
+<pre><code>compile 'info.developerblog.spring.thrift:spring-thrift-starter:1.0.0.RELEASE'
 </code></pre>
 
 <h2>
-<a id="how-use-this" class="anchor" href="#how-use-this" aria-hidden="true"><span class="octicon octicon-link"></span></a>How use this</h2>
+<a id="how-to-use-this" class="anchor" href="#how-to-use-this" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>How to use this</h2>
 
-<p>Annotation @ThriftHandler("servlet_path") helps you building server controller for request processing</p>
+<h3>
+<a id="server-side" class="anchor" href="#server-side" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Server-side</h3>
 
-<pre><code>@ThriftHandler("/api")
-public class TGreetingServiceHandler implements TGreetingService.Iface {
+<p>Annotation @ThriftController("servlet_path") helps you building server controller for request processing</p>
+
+<pre><code>@ThriftController("/api")
+public class TGreetingServiceController implements TGreetingService.Iface {
 
     @Override
     public String greet(TName name) throws TException {
@@ -54,37 +64,71 @@ public class TGreetingServiceHandler implements TGreetingService.Iface {
 }
 </code></pre>
 
-<p>Other annotation @ThriftClient(serviceId = "registered_service", (path) = "server_handler_path") helps you with multithreaded client with full Spring Cloud support.</p>
+<h3>
+<a id="client-side" class="anchor" href="#client-side" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Client-side</h3>
+
+<p>@ThriftClient(serviceId = "registered_service", (path) = "server_handler_path") helps you with multithreaded client with full Spring Cloud support.</p>
 
 <pre><code>@ThriftClient(serviceId = "greeting-service", path = "/api")
 TGreetingService.Client client;
 </code></pre>
 
-<h3>
-<a id="thrift-client-configuration" class="anchor" href="#thrift-client-configuration" aria-hidden="true"><span class="octicon octicon-link"></span></a>Thrift Client configuration</h3>
+<p>@ThriftClientsMap(mapperClass) annotation helps to create a string-keyed map of clients for a set of services having the same interface, allowing to define the concrete callee instance at runtime:</p>
+
+<pre><code>@ThriftClientsMap(mapperClass = SampleMapper.class)
+Map&lt;String, TGreetingService.Client&gt; clientsMap;
+</code></pre>
+
+<p>Mapper class requirements:</p>
+
+<ul>
+<li>must extend AbstractThriftClientKeyMapper</li>
+<li>must be registered as a bean in the application context</li>
+</ul>
+
+<h4>
+<a id="thrift-client-configuration" class="anchor" href="#thrift-client-configuration" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Thrift Client configuration</h4>
 
 <pre><code>greeting-service:                     #service name
   endpoint: http://localhost:8080/api #direct endpoint
   ribbon:                             #manually ribbon
       listOfServers: localhost:8080
   path: /service                      #general path
+  connectTimeout: 1000                #default=1000
+  readTimeout: 10000                  #default=30000
 </code></pre>
 
 <p>If you use service discovery backend (as Eureka or Consul) only path maybe needed.</p>
 
 <p>See tests for better understanding.</p>
 
+<h3>
+<a id="sleuth-support" class="anchor" href="#sleuth-support" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Sleuth support</h3>
+
+<p>Since 1.0.0.RC1 starter have supported <a href="https://cloud.spring.io/spring-cloud-sleuth">Spring Cloud Sleuth</a> for tracing.</p>
+
+<p><code>RequestIdFilter</code> and <code>RequestIdLogger</code> was eliminated in this version of this starter.</p>
+
 <h2>
-<a id="enjoy" class="anchor" href="#enjoy" aria-hidden="true"><span class="octicon octicon-link"></span></a>Enjoy!</h2>
+<a id="special-thanks-to" class="anchor" href="#special-thanks-to" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Special thanks to</h2>
 
-      <footer class="site-footer">
-        <span class="site-footer-owner"><a href="https://github.com/aatarasoff/spring-thrift-starter">Apache Thrift Starter for Spring Boot</a> is maintained by <a href="https://github.com/aatarasoff">aatarasoff</a>.</span>
+<ul>
+<li>
+<a href="https://github.com/bsideup">@bsideup</a> who inspired me with his <a href="https://github.com/bsideup/thrift-spring-boot-starter">project</a>
+</li>
+<li>
+<a href="https://github.com/lavcraft">@lavcraft</a> who was helping me when I've been stucked</li>
+</ul>
 
-        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+<h2>
+<a id="enjoy" class="anchor" href="#enjoy" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Enjoy!</h2>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/aatarasoff">aatarasoff</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
       </footer>
-
-    </section>
-
-  
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
   </body>
 </html>
