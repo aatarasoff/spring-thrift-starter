@@ -2,8 +2,6 @@
 
 [![Join the chat at https://gitter.im/aatarasoff/spring-thrift-starter](https://badges.gitter.im/aatarasoff/spring-thrift-starter.svg)](https://gitter.im/aatarasoff/spring-thrift-starter?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Build Status](https://travis-ci.org/aatarasoff/spring-thrift-starter.svg?branch=master)](https://travis-ci.org/aatarasoff/spring-thrift-starter)
 
-## What it is about
-
 Set of cool annotations that helps you building Thrift applications with Spring Boot.
 
 ## How to connect the project
@@ -17,7 +15,7 @@ repositories {
 ```
 
 ```
-compile 'info.developerblog.spring.thrift:spring-thrift-starter:1.0.0.RELEASE'
+compile 'info.developerblog.spring.thrift:spring-thrift-starter:1.1.0.RELEASE'
 ```
 
 ## How to use this
