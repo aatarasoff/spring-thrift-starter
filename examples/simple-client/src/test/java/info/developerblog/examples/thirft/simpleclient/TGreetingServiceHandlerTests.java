@@ -1,10 +1,13 @@
 package info.developerblog.examples.thirft.simpleclient;
 
+import org.apache.commons.pool2.KeyedObjectPool;
+import org.apache.commons.pool2.impl.GenericKeyedObjectPool;
 import org.apache.thrift.transport.TTransportException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.annotation.DirtiesContext;
@@ -31,6 +34,12 @@ public class TGreetingServiceHandlerTests {
 
     @Autowired
     GreetingService greetingService;
+
+    @Autowired
+    GenericKeyedObjectPool clientPool;
+
+    @Value("${thrift.client.max.threads}")
+    private int maxThreads;
 
     MockMvc mockMvc;
 
@@ -64,6 +73,13 @@ public class TGreetingServiceHandlerTests {
     @Test(expected = TTransportException.class)
     public void testMisconfigurableClient() throws Exception {
         greetingService.getGreetingWithMisconfguration("Doe", "John");
+    }
+
+    @Test
+    public void testClientThreadCount() {
+        assertEquals(clientPool.getMaxIdlePerKey(), maxThreads);
+        assertEquals(clientPool.getMaxTotalPerKey(), maxThreads);
+        assertEquals(clientPool.getMaxTotal(), maxThreads);
     }
 
 }
