@@ -61,6 +61,8 @@ greeting-service:                     #service name
   path: /service                      #general path
   connectTimeout: 1000                #default=1000
   readTimeout: 10000                  #default=30000
+
+thrift.client.max.threads: 10         #default=8
 ```
 
 If you use service discovery backend (as Eureka or Consul) only path maybe needed.
