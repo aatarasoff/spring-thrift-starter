@@ -2,8 +2,6 @@
 
 [![Join the chat at https://gitter.im/aatarasoff/spring-thrift-starter](https://badges.gitter.im/aatarasoff/spring-thrift-starter.svg)](https://gitter.im/aatarasoff/spring-thrift-starter?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Build Status](https://travis-ci.org/aatarasoff/spring-thrift-starter.svg?branch=master)](https://travis-ci.org/aatarasoff/spring-thrift-starter)
 
-## What it is about
-
 Set of cool annotations that helps you building Thrift applications with Spring Boot.
 
 ## How to connect the project
@@ -17,17 +15,17 @@ repositories {
 ```
 
 ```
-compile 'info.developerblog.spring.thrift:spring-thrift-starter:0.10.0'
+compile 'info.developerblog.spring.thrift:spring-thrift-starter:1.1.0.RELEASE'
 ```
 
 ## How to use this
 
 ### Server-side
-Annotation @ThriftHandler("servlet_path") helps you building server controller for request processing
+Annotation @ThriftController("servlet_path") helps you building server controller for request processing
 
 ```
-@ThriftHandler("/api")
-public class TGreetingServiceHandler implements TGreetingService.Iface {
+@ThriftController("/api")
+public class TGreetingServiceController implements TGreetingService.Iface {
 
     @Override
     public String greet(TName name) throws TException {
@@ -51,7 +49,7 @@ Mapper class requirements:
 * must extend AbstractThriftClientKeyMapper
 * must be registered as a bean in the application context
 
-####Thrift Client configuration
+#### Thrift Client configuration
 
 ```
 greeting-service:                     #service name
@@ -61,11 +59,18 @@ greeting-service:                     #service name
   path: /service                      #general path
   connectTimeout: 1000                #default=1000
   readTimeout: 10000                  #default=30000
+
+thrift.client.max.threads: 10         #default=8
 ```
 
 If you use service discovery backend (as Eureka or Consul) only path maybe needed.
 
 See tests for better understanding.
+
+### Sleuth support
+Since 1.0.0.RC1 starter have supported [Spring Cloud Sleuth](https://cloud.spring.io/spring-cloud-sleuth) for tracing.
+
+`RequestIdFilter` and `RequestIdLogger` was eliminated in this version of this starter.
 
 ## Special thanks to
 

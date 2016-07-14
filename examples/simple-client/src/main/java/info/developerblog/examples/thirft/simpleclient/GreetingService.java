@@ -23,6 +23,9 @@ public class GreetingService {
     @ThriftClientsMap(mapperClass = SampleMapper.class)
     Map<String, TGreetingService.Client> clientsMap;
 
+    @ThriftClient(serviceId = "greeting-service-misconfigurable", path = "/api")
+    TGreetingService.Client misconfigurableClient;
+
     public String getGreeting(String lastName, String firstName) throws TException {
         return client.greet(new TName(firstName, lastName));
     }
@@ -33,5 +36,9 @@ public class GreetingService {
 
     public String getGreetingForKey(String key, String lastName, String firstName) throws TException {
         return clientsMap.get(key).greet(new TName(firstName, lastName));
+    }
+
+    public String getGreetingWithMisconfguration(String lastName, String firstName) throws TException {
+        return misconfigurableClient.greet(new TName(firstName, lastName));
     }
 }
