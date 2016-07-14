@@ -23,7 +23,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.util.ClassUtils;
 import ru.trylogic.spring.boot.thrift.annotation.ThriftController;
 import ru.trylogic.spring.boot.thrift.annotation.ThriftHandler;
-import ru.trylogic.spring.boot.thrift.aop.ExceptionsThriftMethodInterceptor;
 import ru.trylogic.spring.boot.thrift.aop.LoggingThriftMethodInterceptor;
 import ru.trylogic.spring.boot.thrift.aop.MetricsThriftMethodInterceptor;
 
@@ -31,7 +30,6 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRegistration;
 import java.lang.reflect.Constructor;
-import java.util.Map;
 
 @Configuration
 @ConditionalOnClass({ ThriftHandler.class, ThriftController.class })
@@ -73,8 +71,6 @@ public class ThriftAutoConfiguration {
             if(gaugeService != null) {
                 proxyFactory.addAdvice(new MetricsThriftMethodInterceptor(gaugeService));
             }
-
-            proxyFactory.addAdvice(new ExceptionsThriftMethodInterceptor());
             proxyFactory.addAdvice(loggingThriftMethodInterceptor);
         }
     }
