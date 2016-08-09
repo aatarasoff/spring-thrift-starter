@@ -58,7 +58,7 @@ public class ThriftClientBeanPostProcessor implements org.springframework.beans.
         do {
             for (Field field : clazz.getDeclaredFields()) {
                 if (field.isAnnotationPresent(ThriftClient.class)) {
-                    beansToProcess.put(beanName, clazz);
+                    beansToProcess.put(beanName, bean.getClass());
                 }
             }
             clazz = clazz.getSuperclass();
