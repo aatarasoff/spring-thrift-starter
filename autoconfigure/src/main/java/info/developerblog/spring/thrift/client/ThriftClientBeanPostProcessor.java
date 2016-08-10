@@ -4,7 +4,9 @@ import info.developerblog.spring.thrift.annotation.ThriftClient;
 import info.developerblog.spring.thrift.client.pool.ThriftClientKey;
 import java.lang.reflect.Field;
 import java.lang.reflect.UndeclaredThrowableException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import lombok.SneakyThrows;
 import org.aopalliance.intercept.MethodInterceptor;
@@ -41,7 +43,7 @@ import org.springframework.util.ReflectionUtils;
 @ConditionalOnWebApplication
 @AutoConfigureAfter(PoolConfiguration.class)
 public class ThriftClientBeanPostProcessor implements org.springframework.beans.factory.config.BeanPostProcessor {
-    private Map<String, Class> beansToProcess = new HashMap<>();
+    private Map<String, List<Class>> beansToProcess = new HashMap<>();
 
     @Autowired
     private DefaultListableBeanFactory beanFactory;
@@ -58,7 +60,10 @@ public class ThriftClientBeanPostProcessor implements org.springframework.beans.
         do {
             for (Field field : clazz.getDeclaredFields()) {
                 if (field.isAnnotationPresent(ThriftClient.class)) {
-                    beansToProcess.put(beanName, bean.getClass());
+                    if (!beansToProcess.containsKey(beanName)) {
+                        beansToProcess.put(beanName, new ArrayList<>());
+                    }
+                    beansToProcess.get(beanName).add(clazz);
                 }
             }
             clazz = clazz.getSuperclass();
@@ -70,23 +75,25 @@ public class ThriftClientBeanPostProcessor implements org.springframework.beans.
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
         if (beansToProcess.containsKey(beanName)) {
             Object target = getTargetBean(bean);
-            for (Field field : beansToProcess.get(beanName).getDeclaredFields()) {
-                ThriftClient annotation = AnnotationUtils.getAnnotation(field, ThriftClient.class);
+            for (Class clazz : beansToProcess.get(beanName)) {
+                for (Field field : clazz.getDeclaredFields()) {
+                    ThriftClient annotation = AnnotationUtils.getAnnotation(field, ThriftClient.class);
 
-                if (null != annotation) {
-                    if (beanFactory.containsBean(field.getName())) {
-                        ReflectionUtils.makeAccessible(field);
-                        ReflectionUtils.setField(field, target, beanFactory.getBean(field.getName()));
-                    } else {
-                        ProxyFactory proxyFactory = getProxyFactoryForThriftClient(target, field);
+                    if (null != annotation) {
+                        if (beanFactory.containsBean(field.getName())) {
+                            ReflectionUtils.makeAccessible(field);
+                            ReflectionUtils.setField(field, target, beanFactory.getBean(field.getName()));
+                        } else {
+                            ProxyFactory proxyFactory = getProxyFactoryForThriftClient(target, field);
 
-                        addPoolAdvice(proxyFactory, annotation);
+                            addPoolAdvice(proxyFactory, annotation);
 
-                        proxyFactory.setFrozen(true);
-                        proxyFactory.setProxyTargetClass(true);
+                            proxyFactory.setFrozen(true);
+                            proxyFactory.setProxyTargetClass(true);
 
-                        ReflectionUtils.makeAccessible(field);
-                        ReflectionUtils.setField(field, target, proxyFactory.getProxy());
+                            ReflectionUtils.makeAccessible(field);
+                            ReflectionUtils.setField(field, target, proxyFactory.getProxy());
+                        }
                     }
                 }
             }
