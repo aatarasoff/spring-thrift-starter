@@ -24,6 +24,7 @@ import org.springframework.core.env.PropertyResolver;
 public class ThriftClientPooledObjectFactory extends BaseKeyedPooledObjectFactory<ThriftClientKey, TServiceClient> {
     public static final int DEFAULT_CONNECTION_TIMEOUT = 1000;
     public static final int DEFAULT_READ_TIMEOUT = 30000;
+    public static final int DEFAULT_MAX_RETRIES = 1;
     private TProtocolFactory protocolFactory;
     private LoadBalancerClient loadBalancerClient;
     private PropertyResolver propertyResolver;
@@ -38,6 +39,7 @@ public class ThriftClientPooledObjectFactory extends BaseKeyedPooledObjectFactor
 
         int connectTimeout = propertyResolver.getProperty(serviceName + ".connectTimeout", Integer.class, DEFAULT_CONNECTION_TIMEOUT);
         int readTimeout = propertyResolver.getProperty(serviceName + ".readTimeout", Integer.class, DEFAULT_READ_TIMEOUT);
+        int maxRetries = propertyResolver.getProperty(serviceName + ".maxRetries", Integer.class, DEFAULT_MAX_RETRIES);
 
         TProtocol protocol;
 
@@ -49,6 +51,7 @@ public class ThriftClientPooledObjectFactory extends BaseKeyedPooledObjectFactor
             );
             loadBalancerClient.setConnectTimeout(connectTimeout);
             loadBalancerClient.setReadTimeout(readTimeout);
+            loadBalancerClient.setMaxRetries(maxRetries);
 
             protocol = protocolFactory.getProtocol(loadBalancerClient);
         } else {

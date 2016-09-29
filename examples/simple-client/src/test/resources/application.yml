@@ -6,5 +6,16 @@ greeting-service-with-timeouts:
   readTimeout: 1
   ribbon:
       listOfServers: localhost:8080
+greeting-service-with-timeouts-oneoff:
+  connectTimeout: 1000
+  readTimeout: 100
+  ribbon:
+      listOfServers: localhost:8080
+greeting-service-with-timeouts-retriable:
+  connectTimeout: 1000
+  readTimeout: 100
+  maxRetries: 3
+  ribbon:
+      listOfServers: localhost:8080
 
 thrift.client.max.threads: 10

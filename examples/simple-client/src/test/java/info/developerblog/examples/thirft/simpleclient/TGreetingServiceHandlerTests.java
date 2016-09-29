@@ -1,8 +1,8 @@
 package info.developerblog.examples.thirft.simpleclient;
 
-import org.apache.commons.pool2.KeyedObjectPool;
 import org.apache.commons.pool2.impl.GenericKeyedObjectPool;
 import org.apache.thrift.transport.TTransportException;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -73,6 +73,28 @@ public class TGreetingServiceHandlerTests {
     @Test(expected = TTransportException.class)
     public void testMisconfigurableClient() throws Exception {
         greetingService.getGreetingWithMisconfguration("Doe", "John");
+    }
+
+    @Test
+    public void testClientWithDefaultRetries() throws Exception {
+        TGreetingServiceCountingController.counter.reset();
+        try {
+            greetingService.getOneOffGreetingWithTimeout("Doe", "John");
+            Assert.fail("TTransportException Expected");
+        } catch (TTransportException e){
+            Assert.assertEquals(1, TGreetingServiceCountingController.counter.intValue());
+        }
+    }
+
+    @Test
+    public void testClientWithMultipleRetries() throws Exception {
+        TGreetingServiceCountingController.counter.reset();
+        try {
+            final String retriableGreetingWithTimeout = greetingService.getRetriableGreetingWithTimeout("Doe", "John");
+            Assert.fail("TTransportException Expected");
+        } catch (TTransportException e){
+            Assert.assertEquals(3, TGreetingServiceCountingController.counter.intValue());
+        }
     }
 
     @Test

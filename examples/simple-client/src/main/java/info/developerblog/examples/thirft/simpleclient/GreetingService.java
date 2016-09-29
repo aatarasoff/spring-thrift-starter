@@ -4,9 +4,10 @@ import example.TGreetingService;
 import example.TName;
 import info.developerblog.spring.thrift.annotation.ThriftClient;
 import info.developerblog.spring.thrift.annotation.ThriftClientsMap;
-import java.util.Map;
 import org.apache.thrift.TException;
 import org.springframework.stereotype.Service;
+
+import java.util.Map;
 
 /**
  * Created by aleksandr on 08.09.15.
@@ -20,6 +21,12 @@ public class GreetingService {
     @ThriftClient(serviceId = "greeting-service-with-timeouts", path = "/api")
     TGreetingService.Client clientWithTimeout;
 
+    @ThriftClient(serviceId = "greeting-service-with-timeouts-oneoff", path = "/counting-api")
+    TGreetingService.Client oneoffClientWithTimeout;
+
+    @ThriftClient(serviceId = "greeting-service-with-timeouts-retriable", path = "/counting-api")
+    TGreetingService.Client retriableClientWithTimeout;
+
     @ThriftClientsMap(mapperClass = SampleMapper.class)
     Map<String, TGreetingService.Client> clientsMap;
 
@@ -32,6 +39,14 @@ public class GreetingService {
 
     public String getGreetingWithTimeout(String lastName, String firstName) throws TException {
         return clientWithTimeout.greet(new TName(firstName, lastName));
+    }
+
+    public String getOneOffGreetingWithTimeout(String lastName, String firstName) throws TException {
+        return oneoffClientWithTimeout.greet(new TName(firstName, lastName));
+    }
+
+    public String getRetriableGreetingWithTimeout(String lastName, String firstName) throws TException {
+        return retriableClientWithTimeout.greet(new TName(firstName, lastName));
     }
 
     public String getGreetingForKey(String key, String lastName, String firstName) throws TException {
