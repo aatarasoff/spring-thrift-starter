@@ -99,7 +99,7 @@ public class ThriftClientPooledObjectFactory extends BaseKeyedPooledObjectFactor
 
         super.passivateObject(key, pooledObject);
 
-        if (this.tracer.isTracing()) {
+        if (this.tracer.isTracing() && pooledObject.getSpan() != null) {
             Span span = pooledObject.getSpan();
             span.logEvent(Span.CLIENT_RECV);
             this.tracer.close(span);
