@@ -4,7 +4,7 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 
-import java.util.concurrent.atomic.LongAdder;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author jihor (jihor@ya.ru)
@@ -12,13 +12,13 @@ import java.util.concurrent.atomic.LongAdder;
  */
 @Aspect
 public class CountingAspect {
-    public LongAdder counter = new LongAdder();
+    public AtomicInteger counter = new AtomicInteger(0);
 
     @Pointcut("execution(* org.springframework.cloud.client.loadbalancer.LoadBalancerClient.choose(..))")
     private void loadBalancerServerChoice() {}
 
     @Before("loadBalancerServerChoice()")
     public void before(){
-        counter.increment();
+        counter.incrementAndGet();
     }
 }

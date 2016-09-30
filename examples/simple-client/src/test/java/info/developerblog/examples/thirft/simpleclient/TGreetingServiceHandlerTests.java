@@ -82,7 +82,7 @@ public class TGreetingServiceHandlerTests {
 
     @Test
     public void testClientWithDefaultRetries() throws Exception {
-        countingAspect.counter.reset();
+        countingAspect.counter.set(0);
         try {
             greetingService.getOneOffGreetingWithTimeout("Doe", "John");
             Assert.fail("TTransportException Expected");
@@ -93,7 +93,7 @@ public class TGreetingServiceHandlerTests {
 
     @Test
     public void testClientWithMultipleRetries() throws Exception {
-        countingAspect.counter.reset();
+        countingAspect.counter.set(0);
         try {
             greetingService.getRetriableGreetingWithTimeout("Doe", "John");
             Assert.fail("TTransportException Expected");
