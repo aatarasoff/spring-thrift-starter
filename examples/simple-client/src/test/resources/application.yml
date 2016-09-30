@@ -7,13 +7,13 @@ greeting-service-with-timeouts:
   ribbon:
       listOfServers: localhost:8080
 greeting-service-with-timeouts-oneoff:
-  connectTimeout: 1000
-  readTimeout: 100
+  connectTimeout: 1
+  readTimeout: 1
   ribbon:
       listOfServers: localhost:8080
 greeting-service-with-timeouts-retriable:
-  connectTimeout: 1000
-  readTimeout: 100
+  connectTimeout: 1
+  readTimeout: 1
   maxRetries: 3
   ribbon:
       listOfServers: localhost:8080

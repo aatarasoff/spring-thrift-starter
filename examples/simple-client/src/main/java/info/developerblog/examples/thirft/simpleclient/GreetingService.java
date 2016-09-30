@@ -21,10 +21,10 @@ public class GreetingService {
     @ThriftClient(serviceId = "greeting-service-with-timeouts", path = "/api")
     TGreetingService.Client clientWithTimeout;
 
-    @ThriftClient(serviceId = "greeting-service-with-timeouts-oneoff", path = "/counting-api")
+    @ThriftClient(serviceId = "greeting-service-with-timeouts-oneoff", path = "/api")
     TGreetingService.Client oneoffClientWithTimeout;
 
-    @ThriftClient(serviceId = "greeting-service-with-timeouts-retriable", path = "/counting-api")
+    @ThriftClient(serviceId = "greeting-service-with-timeouts-retriable", path = "/api")
     TGreetingService.Client retriableClientWithTimeout;
 
     @ThriftClientsMap(mapperClass = SampleMapper.class)
