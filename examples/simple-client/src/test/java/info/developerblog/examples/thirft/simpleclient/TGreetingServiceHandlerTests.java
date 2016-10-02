@@ -1,8 +1,10 @@
 package info.developerblog.examples.thirft.simpleclient;
 
-import org.apache.commons.pool2.KeyedObjectPool;
+import info.developerblog.examples.thirft.simpleclient.configuration.CountingAspect;
+import info.developerblog.examples.thirft.simpleclient.configuration.TestConfiguration;
 import org.apache.commons.pool2.impl.GenericKeyedObjectPool;
 import org.apache.thrift.transport.TTransportException;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,7 +25,7 @@ import static org.junit.Assert.assertEquals;
  * Created by aleksandr on 01.09.15.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = SimpleClientApplication.class)
+@SpringApplicationConfiguration(classes = {SimpleClientApplication.class, TestConfiguration.class})
 @WebAppConfiguration
 @IntegrationTest("server.port:8080")
 @DirtiesContext
@@ -37,6 +39,9 @@ public class TGreetingServiceHandlerTests {
 
     @Autowired
     GenericKeyedObjectPool clientPool;
+
+    @Autowired
+    CountingAspect countingAspect;
 
     @Value("${thrift.client.max.threads}")
     private int maxThreads;
@@ -73,6 +78,28 @@ public class TGreetingServiceHandlerTests {
     @Test(expected = TTransportException.class)
     public void testMisconfigurableClient() throws Exception {
         greetingService.getGreetingWithMisconfguration("Doe", "John");
+    }
+
+    @Test
+    public void testClientWithDefaultRetries() throws Exception {
+        countingAspect.counter.set(0);
+        try {
+            greetingService.getOneOffGreetingWithTimeout("Doe", "John");
+            Assert.fail("TTransportException Expected");
+        } catch (TTransportException e){
+            Assert.assertEquals(1, countingAspect.counter.intValue());
+        }
+    }
+
+    @Test
+    public void testClientWithMultipleRetries() throws Exception {
+        countingAspect.counter.set(0);
+        try {
+            greetingService.getRetriableGreetingWithTimeout("Doe", "John");
+            Assert.fail("TTransportException Expected");
+        } catch (TTransportException e){
+            Assert.assertEquals(3, countingAspect.counter.intValue());
+        }
     }
 
     @Test
