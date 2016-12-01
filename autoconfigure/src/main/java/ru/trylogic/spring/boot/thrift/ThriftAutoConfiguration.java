@@ -22,7 +22,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.ClassUtils;
 import ru.trylogic.spring.boot.thrift.annotation.ThriftController;
-import ru.trylogic.spring.boot.thrift.annotation.ThriftHandler;
 import ru.trylogic.spring.boot.thrift.aop.LoggingThriftMethodInterceptor;
 import ru.trylogic.spring.boot.thrift.aop.MetricsThriftMethodInterceptor;
 
@@ -32,7 +31,7 @@ import javax.servlet.ServletRegistration;
 import java.lang.reflect.Constructor;
 
 @Configuration
-@ConditionalOnClass({ ThriftHandler.class, ThriftController.class })
+@ConditionalOnClass({ ThriftController.class })
 @ConditionalOnWebApplication
 public class ThriftAutoConfiguration {
 
@@ -91,12 +90,6 @@ public class ThriftAutoConfiguration {
         @Override
         @SneakyThrows({NoSuchMethodException.class, ClassNotFoundException.class, InstantiationException.class, IllegalAccessException.class})
         public void onStartup(ServletContext servletContext) throws ServletException {
-            for (String beanName : applicationContext.getBeanNamesForAnnotation(ThriftHandler.class)) {
-                ThriftHandler annotation = applicationContext.findAnnotationOnBean(beanName, ThriftHandler.class);
-
-                register(servletContext, annotation.value(), annotation.factory(), applicationContext.getBean(beanName));
-            }
-
             for (String beanName : applicationContext.getBeanNamesForAnnotation(ThriftController.class)) {
                 ThriftController annotation = applicationContext.findAnnotationOnBean(beanName, ThriftController.class);
 

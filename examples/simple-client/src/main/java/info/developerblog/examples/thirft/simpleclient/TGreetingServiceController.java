@@ -4,7 +4,6 @@ import example.TGreetingService;
 import example.TName;
 import org.apache.thrift.TException;
 import ru.trylogic.spring.boot.thrift.annotation.ThriftController;
-import ru.trylogic.spring.boot.thrift.annotation.ThriftHandler;
 
 /**
  * Created by aleksandr on 01.09.15.

@@ -3,12 +3,12 @@ package info.developerblog.examples.thirft.simpleclient;
 import example.TGreetingService;
 import example.TName;
 import org.apache.thrift.TException;
-import ru.trylogic.spring.boot.thrift.annotation.ThriftHandler;
+import ru.trylogic.spring.boot.thrift.annotation.ThriftController;
 
 /**
  * Created by aleksandr on 01.09.15.
  */
-@ThriftHandler("/api")
+@ThriftController("/api")
 public class TGreetingServiceHandler implements TGreetingService.Iface {
 
     @Override
