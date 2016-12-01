@@ -15,7 +15,7 @@ repositories {
 ```
 
 ```
-compile 'info.developerblog.spring.thrift:spring-thrift-starter:1.3.0.RELEASE'
+compile 'info.developerblog.spring.thrift:spring-thrift-starter:1.4.0.RELEASE'
 ```
 
 ## How to use this
@@ -68,9 +68,7 @@ If you use service discovery backend (as Eureka or Consul) only path maybe neede
 See tests for better understanding.
 
 ### Sleuth support
-Since 1.0.0.RC1 starter have supported [Spring Cloud Sleuth](https://cloud.spring.io/spring-cloud-sleuth) for tracing.
-
-`RequestIdFilter` and `RequestIdLogger` was eliminated in this version of this starter.
+Since 1.0.0 starter have supported [Spring Cloud Sleuth](https://cloud.spring.io/spring-cloud-sleuth) for tracing.
 
 ## Special thanks to
 
