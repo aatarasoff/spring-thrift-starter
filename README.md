@@ -8,13 +8,13 @@ Set of cool annotations that helps you building Thrift applications with Spring 
 
 Its very simple:
 
-```
+```groovy
 repositories {
     jcenter()
 }
 ```
 
-```
+```groovy
 compile 'info.developerblog.spring.thrift:spring-thrift-starter:1.4.0.RELEASE'
 ```
 
@@ -23,7 +23,7 @@ compile 'info.developerblog.spring.thrift:spring-thrift-starter:1.4.0.RELEASE'
 ### Server-side
 Annotation @ThriftController("servlet_path") helps you building server controller for request processing
 
-```
+```java
 @ThriftController("/api")
 public class TGreetingServiceController implements TGreetingService.Iface {
 
@@ -35,13 +35,13 @@ public class TGreetingServiceController implements TGreetingService.Iface {
 ```
 ### Client-side
 @ThriftClient(serviceId = "registered_service", (path) = "server_handler_path") helps you with multithreaded client with full Spring Cloud support.
-```
+```java
 @ThriftClient(serviceId = "greeting-service", path = "/api")
 TGreetingService.Client client;
 ```
 
 @ThriftClientsMap(mapperClass) annotation helps to create a string-keyed map of clients for a set of services having the same interface, allowing to define the concrete callee instance at runtime:
-```
+```java
 @ThriftClientsMap(mapperClass = SampleMapper.class)
 Map<String, TGreetingService.Client> clientsMap;
 ```
@@ -51,7 +51,7 @@ Mapper class requirements:
 
 #### Thrift Client configuration
 
-```
+```yaml
 greeting-service:                     #service name
   endpoint: http://localhost:8080/api #direct endpoint
   ribbon:                             #manually ribbon
