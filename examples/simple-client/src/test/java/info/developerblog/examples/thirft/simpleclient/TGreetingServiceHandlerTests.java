@@ -5,30 +5,27 @@ import info.developerblog.examples.thirft.simpleclient.configuration.TestConfigu
 import org.apache.commons.pool2.impl.GenericKeyedObjectPool;
 import org.apache.thrift.transport.TTransportException;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.IntegrationTest;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.context.WebApplicationContext;
 
 import static org.junit.Assert.assertEquals;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.DEFINED_PORT;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 /**
  * Created by aleksandr on 01.09.15.
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = {SimpleClientApplication.class, TestConfiguration.class})
-@WebAppConfiguration
-@IntegrationTest("server.port:8080")
-@DirtiesContext
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = {
+    SimpleClientApplication.class,
+    TestConfiguration.class
+},
+    webEnvironment = RANDOM_PORT)
 public class TGreetingServiceHandlerTests {
 
     @Autowired
@@ -45,15 +42,6 @@ public class TGreetingServiceHandlerTests {
 
     @Value("${thrift.client.max.threads}")
     private int maxThreads;
-
-    MockMvc mockMvc;
-
-    @Before
-    public void setUp() throws Exception {
-        mockMvc = MockMvcBuilders
-                .webAppContextSetup(context)
-                .build();
-    }
 
     @Test
     public void testSimpleCall() throws Exception {
