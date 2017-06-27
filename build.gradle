@@ -5,7 +5,8 @@ buildscript {
     dependencies {
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.2'
         classpath 'org.springframework.boot:spring-boot-gradle-plugin:1.5.4.RELEASE'
-        classpath 'com.netflix.nebula:gradle-extra-configurations-plugin:2.2.+'
+        classpath 'com.netflix.nebula:gradle-extra-configurations-plugin:3.2.0'
+        classpath 'com.netflix.nebula:nebula-publishing-plugin:5.1.0'
     }
 }
 
@@ -20,8 +21,6 @@ allprojects {
 
     apply plugin: 'idea'
     apply plugin: 'io.spring.dependency-management'
-    apply plugin: 'provided-base'
-    apply plugin: 'optional-base'
 
     dependencyManagement {
         imports {
@@ -58,7 +57,7 @@ subprojects {
     }
 
     dependencies {
-        provided "org.projectlombok:lombok"
+        compileOnly "org.projectlombok:lombok"
 
         testCompile "org.springframework.boot:spring-boot-starter-test"
     }

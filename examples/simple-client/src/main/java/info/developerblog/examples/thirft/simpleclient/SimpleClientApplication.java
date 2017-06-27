@@ -3,14 +3,14 @@ package info.developerblog.examples.thirft.simpleclient;
 import example.TGreetingService;
 import info.developerblog.spring.thrift.annotation.ThriftClient;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 /**
  * Created by aleksandr on 01.09.15.
  */
+@EnableAsync
 @SpringBootApplication
-@EnableAutoConfiguration
 public class SimpleClientApplication {
 
     public static void main(String[] args) {
