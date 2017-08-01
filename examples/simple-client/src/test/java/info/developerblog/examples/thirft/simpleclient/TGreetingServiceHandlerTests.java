@@ -1,7 +1,7 @@
 package info.developerblog.examples.thirft.simpleclient;
 
 import info.developerblog.examples.thirft.simpleclient.configuration.CountingAspect;
-import info.developerblog.examples.thirft.simpleclient.configuration.TestConfiguration;
+import info.developerblog.examples.thirft.simpleclient.configuration.TestAspectConfiguration;
 import org.apache.commons.pool2.impl.GenericKeyedObjectPool;
 import org.apache.thrift.transport.TTransportException;
 import org.junit.Assert;
@@ -14,7 +14,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.context.WebApplicationContext;
 
 import static org.junit.Assert.assertEquals;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.DEFINED_PORT;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 /**
@@ -23,7 +22,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {
     SimpleClientApplication.class,
-    TestConfiguration.class
+    TestAspectConfiguration.class
 },
     webEnvironment = RANDOM_PORT)
 public class TGreetingServiceHandlerTests {
