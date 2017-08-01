@@ -1,4 +1,4 @@
 dependencies {
-    compile project(":starter")
+    compile project(":spring-thrift-starter")
     compile project(":examples:test-protocol")
 }
