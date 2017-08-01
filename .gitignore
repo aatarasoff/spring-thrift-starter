@@ -41,6 +41,7 @@ generated-src
 .idea/
 **/*.iml
 **/.idea/
+**/out/
 **/private
 *~
 .gradle
