@@ -2,18 +2,18 @@ greeting-service:
   ribbon:
       listOfServers: localhost:${local.server.port}
 greeting-service-with-timeouts:
-  connectTimeout: 1
-  readTimeout: 1
+  connectTimeout: 10
+  readTimeout: 100
   ribbon:
       listOfServers: localhost:${local.server.port}
 greeting-service-with-timeouts-oneoff:
-  connectTimeout: 1
-  readTimeout: 1
+  connectTimeout: 10
+  readTimeout: 100
   ribbon:
-      listOfServers: localhost:-1 #not existed port for raise exception
+      listOfServers: localhost:${local.server.port}
 greeting-service-with-timeouts-retriable:
-  connectTimeout: 1
-  readTimeout: 1
+  connectTimeout: 10
+  readTimeout: 100
   maxRetries: 3
   ribbon:
       listOfServers: localhost:${local.server.port}
