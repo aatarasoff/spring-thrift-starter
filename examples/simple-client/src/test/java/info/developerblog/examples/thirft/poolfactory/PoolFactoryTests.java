@@ -10,23 +10,21 @@ import org.apache.thrift.TServiceClient;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.IntegrationTest;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 import javax.annotation.PostConstruct;
 
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.*;
+
 /**
  * @author Dmitry Zhikharev (jihor@ya.ru)
  *         Created on 13.09.2016
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = SimpleClientApplication.class)
-@WebAppConfiguration
-@IntegrationTest("server.port:0")
-@DirtiesContext
+@SpringBootTest(classes = SimpleClientApplication.class, webEnvironment = RANDOM_PORT)
 public class PoolFactoryTests {
     @Autowired
     private ThriftClientPool thriftClientsPool;

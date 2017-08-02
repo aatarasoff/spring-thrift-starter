@@ -1,34 +1,31 @@
 package info.developerblog.examples.thirft.simpleclient;
 
 import info.developerblog.examples.thirft.simpleclient.configuration.CountingAspect;
-import info.developerblog.examples.thirft.simpleclient.configuration.TestConfiguration;
+import info.developerblog.examples.thirft.simpleclient.configuration.TestAspectConfiguration;
 import org.apache.commons.pool2.impl.GenericKeyedObjectPool;
 import org.apache.thrift.transport.TTransportException;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.IntegrationTest;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.context.WebApplicationContext;
 
+import static info.developerblog.examples.thirft.simpleclient.TGreetingServiceController.*;
 import static org.junit.Assert.assertEquals;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 /**
  * Created by aleksandr on 01.09.15.
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = {SimpleClientApplication.class, TestConfiguration.class})
-@WebAppConfiguration
-@IntegrationTest("server.port:8080")
-@DirtiesContext
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = {
+    SimpleClientApplication.class,
+    TestAspectConfiguration.class
+},
+    webEnvironment = RANDOM_PORT)
 public class TGreetingServiceHandlerTests {
 
     @Autowired
@@ -46,15 +43,6 @@ public class TGreetingServiceHandlerTests {
     @Value("${thrift.client.max.threads}")
     private int maxThreads;
 
-    MockMvc mockMvc;
-
-    @Before
-    public void setUp() throws Exception {
-        mockMvc = MockMvcBuilders
-                .webAppContextSetup(context)
-                .build();
-    }
-
     @Test
     public void testSimpleCall() throws Exception {
         assertEquals("Hello John Smith", greetingService.getGreeting("Smith", "John"));
@@ -62,7 +50,7 @@ public class TGreetingServiceHandlerTests {
 
     @Test(expected = TTransportException.class)
     public void testCallWithTimeout() throws Exception {
-        greetingService.getGreetingWithTimeout("Smith", "John");
+        greetingService.getGreetingWithTimeout(TIMEOUTEMULATOR, "John");
     }
 
     @Test
@@ -72,7 +60,7 @@ public class TGreetingServiceHandlerTests {
 
     @Test(expected = TTransportException.class)
     public void testMappedClientWithTimeout() throws Exception {
-        greetingService.getGreetingForKey("key2", "Doe", "Jane");
+        greetingService.getGreetingForKey("key2", TIMEOUTEMULATOR, "Jane");
     }
 
     @Test(expected = TTransportException.class)
@@ -84,7 +72,7 @@ public class TGreetingServiceHandlerTests {
     public void testClientWithDefaultRetries() throws Exception {
         countingAspect.counter.set(0);
         try {
-            greetingService.getOneOffGreetingWithTimeout("Doe", "John");
+            greetingService.getOneOffGreetingWithTimeout(TIMEOUTEMULATOR, "John");
             Assert.fail("TTransportException Expected");
         } catch (TTransportException e){
             Assert.assertEquals(1, countingAspect.counter.intValue());
@@ -95,7 +83,7 @@ public class TGreetingServiceHandlerTests {
     public void testClientWithMultipleRetries() throws Exception {
         countingAspect.counter.set(0);
         try {
-            greetingService.getRetriableGreetingWithTimeout("Doe", "John");
+            greetingService.getRetriableGreetingWithTimeout(TIMEOUTEMULATOR, "John");
             Assert.fail("TTransportException Expected");
         } catch (TTransportException e){
             Assert.assertEquals(3, countingAspect.counter.intValue());

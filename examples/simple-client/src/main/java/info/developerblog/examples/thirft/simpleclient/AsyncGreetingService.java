@@ -1,4 +1,4 @@
-package info.developerblog.examples.thirft.proxyclient.async;
+package info.developerblog.examples.thirft.simpleclient;
 
 import example.TGreetingService;
 import example.TName;

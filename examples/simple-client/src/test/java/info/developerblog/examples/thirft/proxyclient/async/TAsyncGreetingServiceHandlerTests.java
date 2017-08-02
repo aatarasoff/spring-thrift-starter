@@ -1,18 +1,17 @@
 package info.developerblog.examples.thirft.proxyclient.async;
 
+import info.developerblog.examples.thirft.simpleclient.AsyncGreetingService;
 import info.developerblog.examples.thirft.simpleclient.SimpleClientApplication;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.boot.test.WebIntegrationTest;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = {SimpleClientApplication.class, AsyncTestConfiguration.class})
-@WebIntegrationTest("server.port:8080")
-@DirtiesContext
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = SimpleClientApplication.class, webEnvironment = RANDOM_PORT)
 public class TAsyncGreetingServiceHandlerTests {
 
     @Autowired
