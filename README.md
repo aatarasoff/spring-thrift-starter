@@ -15,7 +15,7 @@ repositories {
 ```
 
 ```groovy
-compile 'info.developerblog.spring.thrift:spring-thrift-starter:1.4.0.RELEASE'
+compile 'info.developerblog.spring.thrift:spring-thrift-starter:1.5.0'
 ```
 
 ## How to use this
