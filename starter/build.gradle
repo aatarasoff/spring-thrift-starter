@@ -21,6 +21,7 @@ dependencies {
 bintray {
     user = System.properties['BINTRAY_USER']
     key = System.properties['BINTRAY_KEY']
+    publications = ['nebula']
     publish = true
     pkg {
         repo = 'maven'
