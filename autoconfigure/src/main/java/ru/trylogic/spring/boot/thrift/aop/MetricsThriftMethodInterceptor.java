@@ -1,22 +1,22 @@
 package ru.trylogic.spring.boot.thrift.aop;
 
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.RequiredArgsConstructor;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
-import org.springframework.boot.actuate.metrics.GaugeService;
 
 @RequiredArgsConstructor
 public class MetricsThriftMethodInterceptor implements MethodInterceptor {
 
-    private final GaugeService gaugeService;
-    
+    private final MeterRegistry meterRegistry;
+
     @Override
     public Object invoke(MethodInvocation invocation) throws Throwable {
         long startTime = System.currentTimeMillis();
         try {
             return invocation.proceed();
         } finally {
-            gaugeService.submit("timer.thrift." + invocation.getThis().getClass().getCanonicalName() + "." + invocation.getMethod().getName(), System.currentTimeMillis() - startTime);
+            meterRegistry.gauge("timer.thrift." + invocation.getThis().getClass().getCanonicalName() + "." + invocation.getMethod().getName(), System.currentTimeMillis() - startTime);
         }
     }
 }

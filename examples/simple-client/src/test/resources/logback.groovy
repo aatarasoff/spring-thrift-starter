@@ -1,7 +1,3 @@
-import ch.qos.logback.classic.encoder.PatternLayoutEncoder
-import ch.qos.logback.core.ConsoleAppender
-import org.springframework.cloud.sleuth.Span
-
 import static ch.qos.logback.classic.Level.INFO
 import static ch.qos.logback.classic.Level.OFF
 
@@ -24,7 +20,7 @@ logger("info.developerblog", INFO)
 
 appender("CONSOLE", ConsoleAppender) {
     encoder(PatternLayoutEncoder) {
-        pattern = "%-4r [%thread] %-5level %X{${Span.TRACE_ID_NAME}:-} - %msg%n"
+        pattern = "%-4r [%thread] %-5level %X{X-B3-TraceId:-} - %msg%n"
     }
 }
 

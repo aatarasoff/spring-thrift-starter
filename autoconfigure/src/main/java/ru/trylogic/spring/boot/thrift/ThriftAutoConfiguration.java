@@ -1,5 +1,6 @@
 package ru.trylogic.spring.boot.thrift;
 
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
@@ -11,7 +12,6 @@ import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.aop.target.SingletonTargetSource;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.actuate.metrics.GaugeService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
@@ -26,25 +26,24 @@ import ru.trylogic.spring.boot.thrift.aop.LoggingThriftMethodInterceptor;
 import ru.trylogic.spring.boot.thrift.aop.MetricsThriftMethodInterceptor;
 
 import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
 import javax.servlet.ServletRegistration;
 import java.lang.reflect.Constructor;
 
 @Configuration
-@ConditionalOnClass({ ThriftController.class })
+@ConditionalOnClass({ThriftController.class})
 @ConditionalOnWebApplication
 public class ThriftAutoConfiguration {
 
     public interface ThriftConfigurer {
         void configureProxyFactory(ProxyFactory proxyFactory);
     }
-    
+
     @Bean
     @ConditionalOnMissingBean(ThriftConfigurer.class)
     ThriftConfigurer thriftConfigurer() {
         return new DefaultThriftConfigurer();
     }
-    
+
     @Bean
     @ConditionalOnMissingBean(TProtocolFactory.class)
     TProtocolFactory thriftProtocolFactory() {
@@ -56,10 +55,10 @@ public class ThriftAutoConfiguration {
     LoggingThriftMethodInterceptor loggingThriftMethodInterceptor() {
         return new LoggingThriftMethodInterceptor();
     }
-    
+
     public static class DefaultThriftConfigurer implements ThriftConfigurer {
         @Autowired(required = false)
-        private GaugeService gaugeService;
+        private MeterRegistry meterRegistry;
 
         @Autowired
         private LoggingThriftMethodInterceptor loggingThriftMethodInterceptor;
@@ -67,8 +66,8 @@ public class ThriftAutoConfiguration {
         public void configureProxyFactory(ProxyFactory proxyFactory) {
             proxyFactory.setOptimize(true);
 
-            if(gaugeService != null) {
-                proxyFactory.addAdvice(new MetricsThriftMethodInterceptor(gaugeService));
+            if (meterRegistry != null) {
+                proxyFactory.addAdvice(new MetricsThriftMethodInterceptor(meterRegistry));
             }
             proxyFactory.addAdvice(loggingThriftMethodInterceptor);
         }
@@ -76,20 +75,25 @@ public class ThriftAutoConfiguration {
 
     @Configuration
     public static class Registrar extends RegistrationBean implements ApplicationContextAware {
-        
+
         @Getter
         @Setter
         private ApplicationContext applicationContext;
 
         @Autowired
         private TProtocolFactory protocolFactory;
-        
+
         @Autowired
         private ThriftConfigurer thriftConfigurer;
 
         @Override
+        protected String getDescription() {
+            return "Thrift services";
+        }
+
+        @Override
         @SneakyThrows({NoSuchMethodException.class, ClassNotFoundException.class, InstantiationException.class, IllegalAccessException.class})
-        public void onStartup(ServletContext servletContext) throws ServletException {
+        protected void register(String description, ServletContext servletContext) {
             for (String beanName : applicationContext.getBeanNamesForAnnotation(ThriftController.class)) {
                 ThriftController annotation = applicationContext.findAnnotationOnBean(beanName, ThriftController.class);
 
@@ -155,7 +159,7 @@ public class ThriftAutoConfiguration {
 
             ServletRegistration.Dynamic registration = servletContext.addServlet(servletBeanName, servlet);
 
-            if(urls != null && urls.length > 0) {
+            if (urls != null && urls.length > 0) {
                 registration.addMapping(urls);
             } else {
                 registration.addMapping("/" + serviceClass.getSimpleName());
