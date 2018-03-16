@@ -1,15 +1,15 @@
 package info.developerblog.spring.thrift.client.pool;
 
+import brave.Span;
 import org.apache.commons.pool2.impl.DefaultPooledObject;
 import org.apache.thrift.TServiceClient;
-import org.springframework.cloud.sleuth.Span;
 
 /**
  * Created by ggolda on 20/06/16.
  */
 
 /**
- * Container object for {@link org.springframework.cloud.sleuth.Span} object
+ * Container object for {@link brave.Span} object
  * that connected with current {@link TServiceClient} from pool.
  *
  * @param <T>

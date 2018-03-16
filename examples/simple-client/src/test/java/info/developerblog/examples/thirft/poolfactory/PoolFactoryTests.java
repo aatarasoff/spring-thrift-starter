@@ -11,13 +11,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 
 import javax.annotation.PostConstruct;
 
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.*;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 /**
  * @author Dmitry Zhikharev (jihor@ya.ru)
@@ -36,8 +34,9 @@ public class PoolFactoryTests {
                                                                    .build();
 
     private KeyedPooledObjectFactory<ThriftClientKey, TServiceClient> factory;
+
     @PostConstruct
-    public void postConstruct(){
+    public void postConstruct() {
         factory = thriftClientsPool.getFactory();
     }
 

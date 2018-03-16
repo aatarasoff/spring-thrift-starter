@@ -9,7 +9,7 @@ dependencies {
 
     compileOnly "org.springframework.boot:spring-boot-starter-web", optional
     compileOnly "org.springframework.boot:spring-boot-starter-actuator", optional
-    compileOnly "org.springframework.cloud:spring-cloud-starter-ribbon", optional
+    compileOnly "org.springframework.cloud:spring-cloud-starter-netflix-ribbon", optional
     compileOnly "org.springframework.cloud:spring-cloud-starter-zipkin", optional
 
     compileOnly 'org.apache.commons:commons-pool2', optional
