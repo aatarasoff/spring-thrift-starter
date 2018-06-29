@@ -43,6 +43,12 @@ public class TGreetingServiceHandlerTests {
     @Value("${thrift.client.max.threads}")
     private int maxThreads;
 
+    @Value("${thrift.client.max.idle.threads:8}")
+    private int maxIdleThreads;
+
+    @Value("${thrift.client.max.total.threads:8}")
+    private int maxTotalThreads;
+
     @Test
     public void testSimpleCall() throws Exception {
         assertEquals("Hello John Smith", greetingService.getGreeting("Smith", "John"));
@@ -92,9 +98,9 @@ public class TGreetingServiceHandlerTests {
 
     @Test
     public void testClientThreadCount() {
-        assertEquals(clientPool.getMaxIdlePerKey(), maxThreads);
+        assertEquals(clientPool.getMaxIdlePerKey(), maxIdleThreads);
         assertEquals(clientPool.getMaxTotalPerKey(), maxThreads);
-        assertEquals(clientPool.getMaxTotal(), maxThreads);
+        assertEquals(clientPool.getMaxTotal(), maxTotalThreads);
     }
 
 }
