@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.cloud.sleuth.autoconfig.TraceAutoConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -41,6 +42,12 @@ public class PoolConfiguration {
     @Value("${thrift.client.max.threads:8}")
     private int maxThreads;
 
+    @Value("${thrift.client.max.idle.threads:8}")
+    private int maxIdleThreads;
+
+    @Value("${thrift.client.max.total.threads:8}")
+    private int maxTotalThreads;
+
     @Autowired
     private Tracing tracing;
 
@@ -48,10 +55,11 @@ public class PoolConfiguration {
     private Tracer tracer;
 
     @Bean
+    @ConditionalOnMissingBean(name = "thriftClientsPool")
     public KeyedObjectPool<ThriftClientKey, TServiceClient> thriftClientsPool() {
         GenericKeyedObjectPoolConfig poolConfig = new GenericKeyedObjectPoolConfig();
-        poolConfig.setMaxTotal(maxThreads);
-        poolConfig.setMaxIdlePerKey(maxThreads);
+        poolConfig.setMaxTotal(maxTotalThreads);
+        poolConfig.setMaxIdlePerKey(maxIdleThreads);
         poolConfig.setMaxTotalPerKey(maxThreads);
         poolConfig.setJmxEnabled(false); //cause spring will autodetect itself
         return new ThriftClientPool(thriftClientPoolFactory(), poolConfig);
