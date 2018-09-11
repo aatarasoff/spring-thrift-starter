@@ -29,6 +29,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ReflectionUtils;
+import ru.trylogic.spring.boot.thrift.aop.LoggingThriftMethodInterceptor;
 
 /**
  * @author jihor (jihor@ya.ru)
@@ -48,6 +49,9 @@ public class ThriftClientsMapBeanPostProcessor implements BeanPostProcessor {
 
     @Autowired
     private KeyedObjectPool<ThriftClientKey, TServiceClient> thriftClientsPool;
+
+    @Autowired
+    private LoggingThriftMethodInterceptor loggingThriftMethodInterceptor;
 
     public ThriftClientsMapBeanPostProcessor() {
     }
@@ -77,6 +81,7 @@ public class ThriftClientsMapBeanPostProcessor implements BeanPostProcessor {
                     HashMap clients = new HashMap();
                     for (Map.Entry<String, ThriftClientKey> entry : ((AbstractThriftClientKeyMapper)beanFactory.getBean(annotation.mapperClass())).getMappings().entrySet()) {
                         ProxyFactory proxyFactory = getProxyFactoryForThriftClient(bean, field, entry.getValue().getClazz());
+                        proxyFactory.addAdvice(loggingThriftMethodInterceptor);
                         addPoolAdvice(proxyFactory, entry.getValue());
 
                         proxyFactory.setFrozen(true);
