@@ -14,6 +14,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.web.servlet.RegistrationBean;
 import org.springframework.context.ApplicationContext;
@@ -32,7 +33,7 @@ import java.lang.reflect.Constructor;
 @Configuration
 @ConditionalOnClass({ThriftController.class})
 @ConditionalOnWebApplication
-public class ThriftAutoConfiguration {
+public class ThriftControllerAutoConfiguration {
 
     public interface ThriftConfigurer {
         void configureProxyFactory(ProxyFactory proxyFactory);
@@ -52,6 +53,7 @@ public class ThriftAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(LoggingThriftMethodInterceptor.class)
+    @ConditionalOnProperty(value = "thrift.controller.logging.enabled", matchIfMissing = true)
     LoggingThriftMethodInterceptor loggingThriftMethodInterceptor() {
         return new LoggingThriftMethodInterceptor();
     }
@@ -60,7 +62,7 @@ public class ThriftAutoConfiguration {
         @Autowired(required = false)
         private MeterRegistry meterRegistry;
 
-        @Autowired
+        @Autowired(required = false)
         private LoggingThriftMethodInterceptor loggingThriftMethodInterceptor;
 
         public void configureProxyFactory(ProxyFactory proxyFactory) {
@@ -69,7 +71,9 @@ public class ThriftAutoConfiguration {
             if (meterRegistry != null) {
                 proxyFactory.addAdvice(new MetricsThriftMethodInterceptor(meterRegistry));
             }
-            proxyFactory.addAdvice(loggingThriftMethodInterceptor);
+            if (loggingThriftMethodInterceptor != null) {
+                proxyFactory.addAdvice(loggingThriftMethodInterceptor);
+            }
         }
     }
 

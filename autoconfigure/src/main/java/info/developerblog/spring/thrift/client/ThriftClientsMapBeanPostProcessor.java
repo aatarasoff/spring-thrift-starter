@@ -1,6 +1,7 @@
 package info.developerblog.spring.thrift.client;
 
 import info.developerblog.spring.thrift.annotation.ThriftClientsMap;
+import info.developerblog.spring.thrift.aop.LoggingThriftClientMethodInterceptor;
 import info.developerblog.spring.thrift.client.pool.ThriftClientKey;
 import java.lang.reflect.Field;
 import java.lang.reflect.UndeclaredThrowableException;
@@ -25,11 +26,9 @@ import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ReflectionUtils;
-import ru.trylogic.spring.boot.thrift.aop.LoggingThriftMethodInterceptor;
 
 /**
  * @author jihor (jihor@ya.ru)
@@ -40,7 +39,7 @@ import ru.trylogic.spring.boot.thrift.aop.LoggingThriftMethodInterceptor;
 @Configuration
 @ConditionalOnClass(ThriftClientsMap.class)
 @ConditionalOnWebApplication
-@AutoConfigureAfter(PoolConfiguration.class)
+@AutoConfigureAfter(ThriftClientAutoConfiguration.class)
 public class ThriftClientsMapBeanPostProcessor implements BeanPostProcessor {
     private Map<String, Class> beansToProcess = new HashMap<>();
 
@@ -50,8 +49,8 @@ public class ThriftClientsMapBeanPostProcessor implements BeanPostProcessor {
     @Autowired
     private KeyedObjectPool<ThriftClientKey, TServiceClient> thriftClientsPool;
 
-    @Autowired
-    private LoggingThriftMethodInterceptor loggingThriftMethodInterceptor;
+    @Autowired(required = false)
+    private LoggingThriftClientMethodInterceptor loggingThriftClientMethodInterceptor;
 
     public ThriftClientsMapBeanPostProcessor() {
     }
@@ -81,7 +80,9 @@ public class ThriftClientsMapBeanPostProcessor implements BeanPostProcessor {
                     HashMap clients = new HashMap();
                     for (Map.Entry<String, ThriftClientKey> entry : ((AbstractThriftClientKeyMapper)beanFactory.getBean(annotation.mapperClass())).getMappings().entrySet()) {
                         ProxyFactory proxyFactory = getProxyFactoryForThriftClient(bean, field, entry.getValue().getClazz());
-                        proxyFactory.addAdvice(loggingThriftMethodInterceptor);
+                        if (loggingThriftClientMethodInterceptor != null) {
+                            proxyFactory.addAdvice(loggingThriftClientMethodInterceptor);
+                        }
                         addPoolAdvice(proxyFactory, entry.getValue());
 
                         proxyFactory.setFrozen(true);

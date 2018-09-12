@@ -1,4 +1,4 @@
-package ru.trylogic.spring.boot.thrift.aop;
+package info.developerblog.spring.thrift.aop;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TApplicationException;
@@ -10,22 +10,22 @@ import org.springframework.aop.ThrowsAdvice;
 import java.lang.reflect.Method;
 
 @Slf4j
-public class LoggingThriftMethodInterceptor implements MethodBeforeAdvice, AfterReturningAdvice, ThrowsAdvice {
+public class LoggingThriftClientMethodInterceptor implements MethodBeforeAdvice, AfterReturningAdvice, ThrowsAdvice {
 
     @Override
     public void before(Method method, Object[] args, Object target) throws Throwable {
-        log.info("ThriftController method {}.{}() is called with args: {}",
-                 target.getClass().getSimpleName(),
-                 method.getName(),
-                 args);
+        log.info("ThriftClient method {}.{}() is called with args: {}",
+                target.getClass().getSimpleName(),
+                method.getName(),
+                args);
     }
 
     @Override
     public void afterReturning(Object returnValue, Method method, Object[] args, Object target) throws Throwable {
-        log.info("ThriftController method {}.{}() returns this: {}",
-                 target.getClass().getSimpleName(),
-                 method.getName(),
-                 returnValue);
+        log.info("ThriftClient method {}.{}() returns this: {}",
+                target.getClass().getSimpleName(),
+                method.getName(),
+                returnValue);
     }
 
     @SuppressWarnings("unused")
@@ -34,6 +34,6 @@ public class LoggingThriftMethodInterceptor implements MethodBeforeAdvice, After
             log.warn("Unexpected exception in " + target.getClass().getCanonicalName() + "." + method.getName(), e);
             throw new TApplicationException(TApplicationException.INTERNAL_ERROR, e.toString());
         }
-        log.warn("Exception in ThriftController method {}.{}() when called with args: {}", target.getClass().getSimpleName(), method.getName(), args, e);
+        log.warn("Exception in ThriftClient method {}.{}() when called with args: {}", target.getClass().getSimpleName(), method.getName(), args, e);
     }
 }

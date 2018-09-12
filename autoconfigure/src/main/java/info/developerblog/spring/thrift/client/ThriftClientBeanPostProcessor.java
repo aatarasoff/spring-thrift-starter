@@ -1,13 +1,8 @@
 package info.developerblog.spring.thrift.client;
 
 import info.developerblog.spring.thrift.annotation.ThriftClient;
+import info.developerblog.spring.thrift.aop.LoggingThriftClientMethodInterceptor;
 import info.developerblog.spring.thrift.client.pool.ThriftClientKey;
-import java.lang.reflect.Field;
-import java.lang.reflect.UndeclaredThrowableException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import lombok.SneakyThrows;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.apache.commons.pool2.KeyedObjectPool;
@@ -25,14 +20,17 @@ import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
-import org.springframework.cloud.sleuth.autoconfig.TraceAutoConfiguration;
-import org.springframework.cloud.sleuth.instrument.hystrix.SleuthHystrixAutoConfiguration;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ReflectionUtils;
-import ru.trylogic.spring.boot.thrift.aop.LoggingThriftMethodInterceptor;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.UndeclaredThrowableException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by aleksandr on 01.09.15.
@@ -42,7 +40,7 @@ import ru.trylogic.spring.boot.thrift.aop.LoggingThriftMethodInterceptor;
 @Configuration
 @ConditionalOnClass(ThriftClient.class)
 @ConditionalOnWebApplication
-@AutoConfigureAfter(PoolConfiguration.class)
+@AutoConfigureAfter(ThriftClientAutoConfiguration.class)
 public class ThriftClientBeanPostProcessor implements org.springframework.beans.factory.config.BeanPostProcessor {
     private Map<String, List<Class>> beansToProcess = new HashMap<>();
 
@@ -52,8 +50,8 @@ public class ThriftClientBeanPostProcessor implements org.springframework.beans.
     @Autowired
     private KeyedObjectPool<ThriftClientKey, TServiceClient> thriftClientsPool;
 
-    @Autowired
-    private LoggingThriftMethodInterceptor loggingThriftMethodInterceptor;
+    @Autowired(required = false)
+    private LoggingThriftClientMethodInterceptor loggingThriftClientMethodInterceptor;
 
     public ThriftClientBeanPostProcessor() {
     }
@@ -89,7 +87,9 @@ public class ThriftClientBeanPostProcessor implements org.springframework.beans.
                             ReflectionUtils.setField(field, target, beanFactory.getBean(field.getName()));
                         } else {
                             ProxyFactory proxyFactory = getProxyFactoryForThriftClient(target, field);
-                            proxyFactory.addAdvice(loggingThriftMethodInterceptor);
+                            if (loggingThriftClientMethodInterceptor != null) {
+                                proxyFactory.addAdvice(loggingThriftClientMethodInterceptor);
+                            }
                             addPoolAdvice(proxyFactory, annotation);
 
                             proxyFactory.setFrozen(true);
