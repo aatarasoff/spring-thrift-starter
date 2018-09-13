@@ -34,7 +34,7 @@ public class ThriftClientAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(LoggingThriftClientMethodInterceptor.class)
-    @ConditionalOnProperty(value = "thrift.client.logging.enabled")
+    @ConditionalOnProperty(value = "thrift.client.logging.enabled", matchIfMissing = true)
     LoggingThriftClientMethodInterceptor loggingThriftClientMethodInterceptor() {
         return new LoggingThriftClientMethodInterceptor();
     }
