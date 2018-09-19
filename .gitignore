@@ -45,6 +45,7 @@ generated-src
 **/private
 *~
 .gradle
+.gradletasknamecache
 /build
 /out
 /intTestHomeDir
