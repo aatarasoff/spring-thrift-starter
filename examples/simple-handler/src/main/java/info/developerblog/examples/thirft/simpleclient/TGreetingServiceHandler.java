@@ -2,7 +2,6 @@ package info.developerblog.examples.thirft.simpleclient;
 
 import example.TGreetingService;
 import example.TName;
-import org.apache.thrift.TException;
 import ru.trylogic.spring.boot.thrift.annotation.ThriftController;
 
 /**
@@ -11,21 +10,14 @@ import ru.trylogic.spring.boot.thrift.annotation.ThriftController;
 @ThriftController("/api")
 public class TGreetingServiceHandler implements TGreetingService.Iface {
 
+    private final GreetingMessageService greetingMessageService;
+
+    public TGreetingServiceHandler(GreetingMessageService greetingMessageService) {
+        this.greetingMessageService = greetingMessageService;
+    }
+
     @Override
-    public String greet(TName name) throws TException {
-        StringBuilder result = new StringBuilder();
-
-        result.append("Hello ");
-
-        if(name.isSetStatus()) {
-            result.append(org.springframework.util.StringUtils.capitalize(name.getStatus().name().toLowerCase()));
-            result.append(" ");
-        }
-
-        result.append(name.getFirstName());
-        result.append(" ");
-        result.append(name.getSecondName());
-
-        return result.toString();
+    public String greet(TName name) {
+        return greetingMessageService.constructGreeting(name);
     }
 }

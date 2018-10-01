@@ -64,8 +64,6 @@ public class ThriftAutoConfiguration {
         private LoggingThriftMethodInterceptor loggingThriftMethodInterceptor;
 
         public void configureProxyFactory(ProxyFactory proxyFactory) {
-            proxyFactory.setOptimize(true);
-
             if (meterRegistry != null) {
                 proxyFactory.addAdvice(new MetricsThriftMethodInterceptor(meterRegistry));
             }
