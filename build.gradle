@@ -28,7 +28,7 @@ allprojects {
         }
 
         dependencies {
-            dependency 'org.projectlombok:lombok:1.16.8'
+            dependency 'org.projectlombok:lombok:1.18.4'
             dependency 'org.codehaus.groovy:groovy-all:2.4.5'
             dependency 'org.apache.thrift:libthrift:0.9.3'
             dependency 'org.apache.commons:commons-pool2:2.4.2'
