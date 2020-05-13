@@ -3,7 +3,7 @@ package info.developerblog.spring.thrift.client;
 import org.apache.thrift.TServiceClient;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.beans.factory.config.InstantiationAwareBeanPostProcessor;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
@@ -22,7 +22,7 @@ import java.lang.reflect.Parameter;
 @Configuration
 @ConditionalOnWebApplication
 @AutoConfigureAfter(ThriftClientBeanPostProcessorService.class)
-public class BeanThriftClientBeanPostProcessor implements BeanPostProcessor {
+public class BeanThriftClientBeanPostProcessor implements InstantiationAwareBeanPostProcessor {
 
     @Autowired
     private DefaultListableBeanFactory beanFactory;
@@ -34,8 +34,7 @@ public class BeanThriftClientBeanPostProcessor implements BeanPostProcessor {
     }
 
     @Override
-    public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-        Class<?> clazz = bean.getClass();
+    public Object postProcessBeforeInstantiation(Class<?> clazz, String beanName) throws BeansException {
         do {
             for (Field field : clazz.getDeclaredFields()) {
                 if (isThriftClient(field.getType())) {
@@ -51,7 +50,7 @@ public class BeanThriftClientBeanPostProcessor implements BeanPostProcessor {
             }
             clazz = clazz.getSuperclass();
         } while (clazz != null);
-        return bean;
+        return null;
     }
 
     private static boolean isThriftClient(Class<?> param) {
@@ -66,7 +65,7 @@ public class BeanThriftClientBeanPostProcessor implements BeanPostProcessor {
     }
 
     private static String getBeanName(Class<?> clazz) {
-        String className = clazz.getSimpleName();
+        String className = clazz.getName().substring(clazz.getName().lastIndexOf('.') + 1);
         return className.substring(0, 1).toLowerCase() + className.substring(1);
     }
 
