@@ -5,6 +5,7 @@ import example.TName;
 import info.developerblog.spring.thrift.annotation.ThriftClient;
 import info.developerblog.spring.thrift.annotation.ThriftClientsMap;
 import org.apache.thrift.TException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -32,6 +33,15 @@ public class GreetingService {
 
     @ThriftClient(serviceId = "greeting-service-misconfigurable", path = "/api")
     TGreetingService.Client misconfigurableClient;
+
+    @Autowired
+    TGreetingService.Client autowiredClient;
+
+    TGreetingService.Client constructorClient;
+
+    public GreetingService(final TGreetingService.Client constructorClient) {
+        this.constructorClient = constructorClient;
+    }
 
     public String getGreeting(String lastName, String firstName) throws TException {
         return client.greet(new TName(firstName, lastName));

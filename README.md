@@ -40,6 +40,30 @@ public class TGreetingServiceController implements TGreetingService.Iface {
 TGreetingService.Client client;
 ```
 
+Thrift clients can also be used as regular beans 
+
+(which can be configured through [app properties](#thrift-client-configuration))
+
+```java
+class Service {
+    @Autowired
+    private TGreetingService.Client client;
+}
+```
+
+
+```java
+class Service {
+    private final TGreetingService.Client client;
+    @Autowired
+    public Service(TGreetingService.Client client) {
+        this.client = client;
+    }
+}
+```
+
+
+
 @ThriftClientsMap(mapperClass) annotation helps to create a string-keyed map of clients for a set of services having the same interface, allowing to define the concrete callee instance at runtime:
 ```java
 @ThriftClientsMap(mapperClass = SampleMapper.class)

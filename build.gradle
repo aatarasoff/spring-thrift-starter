@@ -3,13 +3,12 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.2'
-        classpath 'org.springframework.boot:spring-boot-gradle-plugin:2.1.0.RELEASE'
-        classpath 'com.netflix.nebula:gradle-extra-configurations-plugin:3.2.0'
-        classpath 'com.netflix.nebula:nebula-publishing-plugin:5.1.0'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.5'
+        classpath 'org.springframework.boot:spring-boot-gradle-plugin:2.2.7.RELEASE'
+        classpath 'com.netflix.nebula:gradle-extra-configurations-plugin:5.0.3'
+        classpath "com.netflix.nebula:nebula-publishing-plugin:16.0.0"
     }
 }
-
 
 allprojects {
     group = 'info.developerblog.spring.thrift'
@@ -28,11 +27,11 @@ allprojects {
         }
 
         dependencies {
-            dependency 'org.projectlombok:lombok:1.18.4'
+            dependency 'org.projectlombok:lombok:1.18.12'
             dependency 'org.codehaus.groovy:groovy-all:2.4.5'
-            dependency 'org.apache.thrift:libthrift:0.11.0'
-            dependency 'org.apache.commons:commons-pool2:2.4.2'
-            dependency 'org.apache.commons:commons-lang3:3.5'
+            dependency 'org.apache.thrift:libthrift:0.13.0'
+            dependency 'org.apache.commons:commons-pool2:2.8.0'
+            dependency 'org.apache.commons:commons-lang3:3.10'
         }
     }
 
@@ -58,6 +57,7 @@ subprojects {
 
     dependencies {
         compileOnly "org.projectlombok:lombok"
+        annotationProcessor "org.projectlombok:lombok"
 
         testCompile "org.springframework.boot:spring-boot-starter-test"
     }
