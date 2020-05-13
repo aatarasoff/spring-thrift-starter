@@ -12,7 +12,7 @@ buildscript {
 
 allprojects {
     group = 'info.developerblog.spring.thrift'
-    version = '2.1.2'
+    version = '2.2.0'
 
     repositories {
         jcenter()
