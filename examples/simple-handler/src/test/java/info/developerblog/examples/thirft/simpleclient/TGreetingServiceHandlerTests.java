@@ -26,7 +26,10 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
  * Created by aleksandr on 01.09.15.
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = {Application.class, TGreetingServiceHandlerTests.MockConfiguration.class}, webEnvironment = RANDOM_PORT)
+@SpringBootTest(
+        classes = {Application.class},
+        webEnvironment = RANDOM_PORT
+)
 public class TGreetingServiceHandlerTests {
 
     @LocalServerPort
@@ -52,25 +55,11 @@ public class TGreetingServiceHandlerTests {
     @Test
     public void testSimpleCall() throws Exception {
         TName name = new TName("John", "Smith");
-        doReturn("Hello Mr John Smith").when(greetingMessageService).constructGreeting(name);
-
-        assertEquals("Hello Mr John Smith", client.greet(name));
+        assertEquals("Hello John Smith", client.greet(name));
     }
 
     @Test(expected = TApplicationException.class)
     public void testThrowException() throws Exception {
-        doThrow(new RuntimeException()).when(greetingMessageService).constructGreeting(any());
-
         client.greet(new TName("John", "Doe"));
-    }
-
-    @TestConfiguration
-    public static class MockConfiguration {
-
-        @Bean
-        @Primary
-        public GreetingMessageService greetingMessageService() {
-            return mock(GreetingMessageService.class);
-        }
     }
 }
