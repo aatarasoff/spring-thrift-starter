@@ -34,12 +34,16 @@ public class TGreetingServiceController implements TGreetingService.Iface {
 }
 ```
 ### Client-side
+
+#### @ThriftClient
+
 @ThriftClient(serviceId = "registered_service", (path) = "server_handler_path") helps you with multithreaded client with full Spring Cloud support.
 ```java
 @ThriftClient(serviceId = "greeting-service", path = "/api")
 TGreetingService.Client client;
 ```
 
+#### Beans
 Thrift clients can also be used as regular beans 
 
 (which can be configured through [app properties](#thrift-client-configuration))
@@ -62,7 +66,7 @@ class Service {
 }
 ```
 
-
+#### @ThriftClientsMap
 
 @ThriftClientsMap(mapperClass) annotation helps to create a string-keyed map of clients for a set of services having the same interface, allowing to define the concrete callee instance at runtime:
 ```java
@@ -98,6 +102,7 @@ Since 1.0.0 starter have supported [Spring Cloud Sleuth](https://cloud.spring.io
 
 * [@bsideup](https://github.com/bsideup) who inspired me with his [project](https://github.com/bsideup/thrift-spring-boot-starter)
 * [@lavcraft](https://github.com/lavcraft) who was helping me when I've been stucked
+* [@driver733](https://github.com/driver733) for implementing the [bean registration support](#beans)
 
 ## Enjoy!
 
