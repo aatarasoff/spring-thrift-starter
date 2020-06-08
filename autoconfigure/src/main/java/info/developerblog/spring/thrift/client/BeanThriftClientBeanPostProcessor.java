@@ -1,5 +1,8 @@
 package info.developerblog.spring.thrift.client;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Parameter;
 import org.apache.thrift.TServiceClient;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,14 +13,9 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplicat
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Parameter;
-
 /**
- * Created by aleksandr on 01.09.15.
+ * Created by @driver733
  */
-
 @Component
 @Configuration
 @ConditionalOnWebApplication
@@ -54,7 +52,17 @@ public class BeanThriftClientBeanPostProcessor implements InstantiationAwareBean
     }
 
     private static boolean isThriftClient(Class<?> param) {
-        return param.getSuperclass() == TServiceClient.class;
+        Class<?> superclass = param.getSuperclass();
+        boolean result = false;
+        while (superclass != null) {
+            if (superclass == TServiceClient.class) {
+                result = true;
+                break;
+            } else {
+                superclass = superclass.getSuperclass();
+            }
+        }
+        return result;
     }
 
     private void registerThriftClientBean(Class<?> clazz) {
