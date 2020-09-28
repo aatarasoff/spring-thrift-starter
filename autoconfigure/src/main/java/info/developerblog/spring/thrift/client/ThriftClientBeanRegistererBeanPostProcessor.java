@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 
 /**
- * Created by aleksandr on 01.09.15.
+ * Created by @driver733.
  */
 @Component
 @Configuration
