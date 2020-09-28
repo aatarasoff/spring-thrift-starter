@@ -1,7 +1,7 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
 ru.trylogic.spring.boot.thrift.ThriftAutoConfiguration,\
 info.developerblog.spring.thrift.client.PoolConfiguration,\
-info.developerblog.spring.thrift.client.ThriftClientBeanPostProcessor,\
-info.developerblog.spring.thrift.client.BeanThriftClientBeanPostProcessor,\
+info.developerblog.spring.thrift.client.ThriftClientFieldInjectorBeanPostProcessor,\
+info.developerblog.spring.thrift.client.ThriftClientBeanRegistererBeanPostProcessor,\
 info.developerblog.spring.thrift.client.ThriftClientsMapBeanPostProcessor,\
 info.developerblog.spring.thrift.client.ThriftClientBeanPostProcessorService
