@@ -1,6 +1,11 @@
 package info.developerblog.spring.thrift.client;
 
 import info.developerblog.spring.thrift.annotation.ThriftClient;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import lombok.SneakyThrows;
 import org.springframework.aop.framework.Advised;
 import org.springframework.aop.support.AopUtils;
@@ -15,12 +20,6 @@ import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ReflectionUtils;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 /**
  * Created by aleksandr on 01.09.15.
  */
@@ -30,14 +29,14 @@ import java.util.Map;
 @ConditionalOnClass(ThriftClient.class)
 @ConditionalOnWebApplication
 @AutoConfigureAfter(ThriftClientBeanPostProcessorService.class)
-public class ThriftClientBeanPostProcessor implements BeanPostProcessor {
+public class ThriftClientFieldInjectorBeanPostProcessor implements BeanPostProcessor {
 
     private final Map<String, List<Class>> beansToProcess = new HashMap<>();
 
     @Autowired
     private ThriftClientBeanPostProcessorService service;
 
-    public ThriftClientBeanPostProcessor() {
+    public ThriftClientFieldInjectorBeanPostProcessor() {
     }
 
     @Override
@@ -69,7 +68,7 @@ public class ThriftClientBeanPostProcessor implements BeanPostProcessor {
                         ReflectionUtils.setField(
                                 field,
                                 target,
-                                service.getThriftClientInstance(field.getType(), annotation)
+                            service.getThriftClientInstanceBy(field, annotation)
                         );
                     }
                 }
