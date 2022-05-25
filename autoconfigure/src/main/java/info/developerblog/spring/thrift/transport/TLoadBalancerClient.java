@@ -1,6 +1,7 @@
 package info.developerblog.spring.thrift.transport;
 
-import org.apache.thrift.transport.TTransport;
+import org.apache.thrift.TConfiguration;
+import org.apache.thrift.transport.TEndpointTransport;
 import org.apache.thrift.transport.TTransportException;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
@@ -17,10 +18,10 @@ import java.util.Map;
 /**
  * Created by aleksandr on 11.10.15.
  */
-public class TLoadBalancerClient extends TTransport {
-    private LoadBalancerClient loadBalancerClient;
-    private String serviceName;
-    private String path;
+public class TLoadBalancerClient extends TEndpointTransport {
+    private final LoadBalancerClient loadBalancerClient;
+    private final String serviceName;
+    private final String path;
     private final ByteArrayOutputStream requestBuffer_ = new ByteArrayOutputStream();
     private InputStream inputStream_ = null;
     private int connectTimeout_ = 0;
@@ -29,6 +30,7 @@ public class TLoadBalancerClient extends TTransport {
     private Map<String, String> customHeaders_ = null;
 
     public TLoadBalancerClient(LoadBalancerClient loadBalancerClient, String serviceName, String path) throws TTransportException {
+        super(TConfiguration.DEFAULT);
         this.loadBalancerClient = loadBalancerClient;
         this.serviceName = serviceName;
         this.path = path;
@@ -121,6 +123,21 @@ public class TLoadBalancerClient extends TTransport {
                 }
             }
         }
+    }
+
+    @Override
+    public TConfiguration getConfiguration() {
+        return null;
+    }
+
+    @Override
+    public void updateKnownMessageSize(long size) throws TTransportException {
+
+    }
+
+    @Override
+    public void checkReadBytesAvailable(long numBytes) throws TTransportException {
+
     }
 
     private void doFlush(byte[] data) throws TTransportException, IOException {

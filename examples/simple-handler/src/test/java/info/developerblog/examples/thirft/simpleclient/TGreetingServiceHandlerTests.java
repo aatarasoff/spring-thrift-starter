@@ -7,25 +7,20 @@ import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.protocol.TProtocolFactory;
 import org.apache.thrift.transport.THttpClient;
 import org.apache.thrift.transport.TTransport;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.apache.thrift.transport.TTransportException;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Primary;
-import org.springframework.test.context.junit4.SpringRunner;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 /**
  * Created by aleksandr on 01.09.15.
  */
-@RunWith(SpringRunner.class)
 @SpringBootTest(
         classes = {Application.class},
         webEnvironment = RANDOM_PORT
@@ -43,7 +38,7 @@ public class TGreetingServiceHandlerTests {
 
     TGreetingService.Iface client;
 
-    @Before
+    @BeforeAll
     public void setUp() throws Exception {
         TTransport transport = new THttpClient("http://localhost:" + port + "/api");
 
@@ -58,8 +53,10 @@ public class TGreetingServiceHandlerTests {
         assertEquals("Hello John Smith", client.greet(name));
     }
 
-    @Test(expected = TApplicationException.class)
+    @Test
     public void testThrowException() throws Exception {
-        client.greet(new TName("John", "Doe"));
+        assertThrows(TApplicationException.class, () -> {
+            client.greet(new TName("John", "Doe"));
+        });
     }
 }

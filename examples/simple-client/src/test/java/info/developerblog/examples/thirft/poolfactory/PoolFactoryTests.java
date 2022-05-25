@@ -7,11 +7,9 @@ import info.developerblog.spring.thrift.client.pool.ThriftClientPool;
 import org.apache.commons.pool2.KeyedPooledObjectFactory;
 import org.apache.commons.pool2.PooledObject;
 import org.apache.thrift.TServiceClient;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.annotation.PostConstruct;
 
@@ -21,7 +19,6 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
  * @author Dmitry Zhikharev (jihor@ya.ru)
  *         Created on 13.09.2016
  */
-@RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = SimpleClientApplication.class, webEnvironment = RANDOM_PORT)
 public class PoolFactoryTests {
     @Autowired

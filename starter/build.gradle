@@ -11,8 +11,8 @@ dependencies {
 
     compileApi 'org.springframework.boot:spring-boot-starter-web'
     compileApi 'org.springframework.boot:spring-boot-starter-actuator'
-    compileApi 'org.springframework.cloud:spring-cloud-starter-netflix-ribbon'
-    compileApi 'org.springframework.cloud:spring-cloud-starter-zipkin'
+    compileApi 'org.springframework.cloud:spring-cloud-starter-loadbalancer'
+    compileApi 'org.springframework.cloud:spring-cloud-sleuth-zipkin'
 
     compileApi 'org.apache.commons:commons-pool2'
     compileApi 'org.apache.commons:commons-lang3'

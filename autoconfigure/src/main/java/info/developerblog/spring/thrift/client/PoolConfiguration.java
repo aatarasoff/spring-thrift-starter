@@ -1,7 +1,5 @@
 package info.developerblog.spring.thrift.client;
 
-import brave.Tracer;
-import brave.Tracing;
 import info.developerblog.spring.thrift.client.pool.ThriftClientKey;
 import info.developerblog.spring.thrift.client.pool.ThriftClientPool;
 import info.developerblog.spring.thrift.client.pool.ThriftClientPooledObjectFactory;
@@ -12,11 +10,10 @@ import org.apache.thrift.TServiceClient;
 import org.apache.thrift.protocol.TProtocolFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
-import org.springframework.cloud.sleuth.autoconfig.TraceAutoConfiguration;
+import org.springframework.cloud.sleuth.Tracer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.PropertyResolver;
@@ -26,7 +23,6 @@ import org.springframework.core.env.PropertyResolver;
  *         Created on 2016-06-14
  */
 @Configuration
-@AutoConfigureAfter({TraceAutoConfiguration.class})
 @ConditionalOnBean(Tracer.class)
 public class PoolConfiguration {
 
@@ -49,9 +45,6 @@ public class PoolConfiguration {
     private int maxTotalThreads;
 
     @Autowired
-    private Tracing tracing;
-
-    @Autowired
     private Tracer tracer;
 
     @Bean
@@ -71,7 +64,6 @@ public class PoolConfiguration {
                 .protocolFactory(protocolFactory)
                 .propertyResolver(propertyResolver)
                 .loadBalancerClient(loadBalancerClient)
-                .tracing(tracing)
                 .tracer(tracer)
                 .build();
     }

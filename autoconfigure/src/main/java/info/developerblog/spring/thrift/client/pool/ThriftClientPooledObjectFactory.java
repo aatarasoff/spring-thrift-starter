@@ -1,10 +1,5 @@
 package info.developerblog.spring.thrift.client.pool;
 
-import brave.Span;
-import brave.Tracer;
-import brave.Tracing;
-import brave.propagation.Propagation;
-import brave.propagation.TraceContext;
 import info.developerblog.spring.thrift.transport.TLoadBalancerClient;
 import lombok.Builder;
 import org.apache.commons.lang3.StringUtils;
@@ -17,6 +12,9 @@ import org.apache.thrift.transport.THttpClient;
 import org.apache.thrift.transport.TTransport;
 import org.springframework.beans.BeanUtils;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
+import org.springframework.cloud.sleuth.Span;
+import org.springframework.cloud.sleuth.Tracer;
+import org.springframework.cloud.sleuth.propagation.Propagator;
 import org.springframework.core.env.PropertyResolver;
 
 /**
@@ -30,8 +28,8 @@ public class ThriftClientPooledObjectFactory extends BaseKeyedPooledObjectFactor
     private TProtocolFactory protocolFactory;
     private LoadBalancerClient loadBalancerClient;
     private PropertyResolver propertyResolver;
-    private Tracing tracing;
     private Tracer tracer;
+    private Propagator propagator;
 
     @Override
     public TServiceClient create(ThriftClientKey key) throws Exception {
@@ -66,7 +64,7 @@ public class ThriftClientPooledObjectFactory extends BaseKeyedPooledObjectFactor
 
         return BeanUtils.instantiateClass(
                 key.getClazz().getConstructor(TProtocol.class),
-                (TProtocol) protocol
+                protocol
         );
     }
 
@@ -81,9 +79,9 @@ public class ThriftClientPooledObjectFactory extends BaseKeyedPooledObjectFactor
         ThriftClientPooledObject<TServiceClient> pooledObject = (ThriftClientPooledObject<TServiceClient>) p;
 
         Span span = this.tracer
-                .nextSpan()
-                .name(key.getServiceName())
+                .spanBuilder()
                 .kind(Span.Kind.CLIENT)
+                .name(key.getServiceName())
                 .start();
 
         pooledObject.setSpan(span);
@@ -107,8 +105,7 @@ public class ThriftClientPooledObjectFactory extends BaseKeyedPooledObjectFactor
         super.passivateObject(key, pooledObject);
 
         if (pooledObject.getSpan() != null) {
-            Span span = pooledObject.getSpan();
-            span.finish();
+            pooledObject.getSpan().end();
         }
     }
 
@@ -120,13 +117,10 @@ public class ThriftClientPooledObjectFactory extends BaseKeyedPooledObjectFactor
     }
 
     private void injectTraceHeaders(Span span, TTransport transport) {
-        Propagation<String> propagation = tracing.propagation();
         if (transport instanceof THttpClient) {
-            TraceContext.Injector<THttpClient> injector = propagation.injector(THttpClient::setCustomHeader);
-            injector.inject(span.context(), (THttpClient) transport);
+            propagator.inject(span.context(), (THttpClient) transport, THttpClient::setCustomHeader);
         } else {
-            TraceContext.Injector<TLoadBalancerClient> injector = propagation.injector(TLoadBalancerClient::setCustomHeader);
-            injector.inject(span.context(), (TLoadBalancerClient) transport);
+            propagator.inject(span.context(), (TLoadBalancerClient) transport, TLoadBalancerClient::setCustomHeader);
         }
     }
 }
