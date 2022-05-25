@@ -16,13 +16,11 @@ repositories {
         }
     }
 }
-```
 
-For more information, please, look the official github packages documentation: https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-gradle-registry#using-a-published-package
-
-```groovy
 compile 'info.developerblog.spring.thrift:spring-thrift-starter:+'
 ```
+
+For more information, please, look the official github packages [documentation](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-gradle-registry#using-a-published-package).
 
 ## How to use this
 
