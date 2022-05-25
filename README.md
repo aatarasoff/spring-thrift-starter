@@ -5,14 +5,20 @@
 Set of cool annotations that helps you building Thrift applications with Spring Boot.
 
 ## How to connect the project
-
-Its very simple:
-
 ```groovy
 repositories {
-    jcenter()
+    ...
+    maven {
+        url = uri("https://maven.pkg.github.com/aatarasoff/spring-thrift-starter")
+        credentials {
+            username = System.getenv("USERNAME")
+            password = System.getenv("TOKEN")
+        }
+    }
 }
 ```
+
+For more information, please, look the official github packages documentation: https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-gradle-registry#using-a-published-package
 
 ```groovy
 compile 'info.developerblog.spring.thrift:spring-thrift-starter:+'
