@@ -4,61 +4,24 @@ buildscript {
     repositories {
         mavenLocal()
         mavenCentral()
-        jcenter()
-    }
-
-    dependencies {
-        classpath "ru.trylogic.gradle.plugins:gradle-thrift-plugin:0.1.1"
     }
 }
-
-repositories {
-    ivy {
-        metadataSources {
-            artifact()
-        }
-        artifactPattern "http://dl.bintray.com/bsideup/thirdparty/[artifact]-[revision](-[classifier]).[ext]"
-        artifactPattern "http://dl.bintray.com/aatarasoff/maven/[artifact]-[revision](-[classifier]).[ext]"
-    }
-}
-
-apply plugin: 'thrift'
-
-task generateThriftJava(type : ru.trylogic.gradle.thrift.tasks.ThriftCompileTask) {
-    generator = 'java:beans'
-    destinationDir = file("generated-src/generated/java")
-}
-
 
 sourceSets {
     main {
         java {
-            srcDir generateThriftJava.destinationDir
+            srcDir file("generated-src/generated/java")
         }
     }
-}
-
-clean {
-    delete generateThriftJava.destinationDir
 }
 
 idea {
     module {
         sourceDirs += file('src/main/thrift')
-        sourceDirs += generateThriftJava.destinationDir
+        sourceDirs += file("generated-src/generated/java")
     }
 }
 
-compileJava.dependsOn generateThriftJava
-
 dependencies {
-    def thriftVersion = '0.9.2'
-    Map platformMapping = [
-            (OperatingSystem.WINDOWS) : 'win',
-            (OperatingSystem.MAC_OS) : 'osx'
-    ].withDefault { 'nix' }
-
-    thrift "org.apache.thrift:thrift:$thriftVersion:${platformMapping.get(OperatingSystem.current())}@bin"
-
     compile "org.apache.thrift:libthrift"
 }

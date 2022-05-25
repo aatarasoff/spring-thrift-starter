@@ -20,8 +20,6 @@ local.properties
 .loadpath
 .nb-gradle-properties
 *.log
-/generated-src
-generated-src
 
 # External tool builders
 .externalToolBuilders/
