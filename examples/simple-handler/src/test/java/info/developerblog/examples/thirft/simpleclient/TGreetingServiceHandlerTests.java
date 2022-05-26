@@ -7,8 +7,7 @@ import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.protocol.TProtocolFactory;
 import org.apache.thrift.transport.THttpClient;
 import org.apache.thrift.transport.TTransport;
-import org.apache.thrift.transport.TTransportException;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -26,7 +25,6 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
         webEnvironment = RANDOM_PORT
 )
 public class TGreetingServiceHandlerTests {
-
     @LocalServerPort
     int port;
 
@@ -38,7 +36,7 @@ public class TGreetingServiceHandlerTests {
 
     TGreetingService.Iface client;
 
-    @BeforeAll
+    @BeforeEach
     public void setUp() throws Exception {
         TTransport transport = new THttpClient("http://localhost:" + port + "/api");
 

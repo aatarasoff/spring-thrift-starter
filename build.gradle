@@ -44,6 +44,7 @@ allprojects {
 subprojects {
     apply plugin: 'java'
 
+
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
 
@@ -52,6 +53,8 @@ subprojects {
             junitXml.enabled = true
             html.enabled = true
         }
+
+        useJUnitPlatform()
     }
 
     dependencies {

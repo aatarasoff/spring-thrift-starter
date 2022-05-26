@@ -10,10 +10,10 @@ import org.apache.thrift.TServiceClient;
 import org.apache.thrift.protocol.TProtocolFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.cloud.sleuth.Tracer;
+import org.springframework.cloud.sleuth.propagation.Propagator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.PropertyResolver;
@@ -23,7 +23,6 @@ import org.springframework.core.env.PropertyResolver;
  *         Created on 2016-06-14
  */
 @Configuration
-@ConditionalOnBean(Tracer.class)
 public class PoolConfiguration {
 
     @Autowired
@@ -47,6 +46,9 @@ public class PoolConfiguration {
     @Autowired
     private Tracer tracer;
 
+    @Autowired
+    private Propagator propagator;
+
     @Bean
     @ConditionalOnMissingBean(name = "thriftClientsPool")
     public KeyedObjectPool<ThriftClientKey, TServiceClient> thriftClientsPool() {
@@ -65,6 +67,7 @@ public class PoolConfiguration {
                 .propertyResolver(propertyResolver)
                 .loadBalancerClient(loadBalancerClient)
                 .tracer(tracer)
+                .propagator(propagator)
                 .build();
     }
 

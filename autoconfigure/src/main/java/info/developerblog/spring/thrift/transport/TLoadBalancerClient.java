@@ -125,21 +125,6 @@ public class TLoadBalancerClient extends TEndpointTransport {
         }
     }
 
-    @Override
-    public TConfiguration getConfiguration() {
-        return null;
-    }
-
-    @Override
-    public void updateKnownMessageSize(long size) throws TTransportException {
-
-    }
-
-    @Override
-    public void checkReadBytesAvailable(long numBytes) throws TTransportException {
-
-    }
-
     private void doFlush(byte[] data) throws TTransportException, IOException {
         ServiceInstance serviceInstance = this.loadBalancerClient.choose(serviceName);
 

@@ -1,21 +1,38 @@
-greeting-service:
-  ribbon:
-      listOfServers: localhost:${local.server.port}
+spring:
+  cloud:
+    discovery:
+      client:
+        simple:
+          instances:
+            greeting-service:
+              - instanceId: server1
+                serviceId: greeting-service
+                host: localhost
+                port: 0
+            greeting-service-with-timeouts:
+              - instanceId: server1
+                serviceId: greeting-service-with-timeouts
+                host: localhost
+                port: 0
+            greeting-service-with-timeouts-oneoff:
+              - instanceId: server1
+                serviceId: greeting-service-with-timeouts-oneoff
+                host: localhost
+                port: 0
+            greeting-service-with-timeouts-retriable:
+              - instanceId: server1
+                serviceId: greeting-service-with-timeouts-retriable
+                host: localhost
+                port: 0
 greeting-service-with-timeouts:
   connectTimeout: 10
   readTimeout: 100
-  ribbon:
-      listOfServers: localhost:${local.server.port}
 greeting-service-with-timeouts-oneoff:
   connectTimeout: 10
   readTimeout: 100
-  ribbon:
-      listOfServers: localhost:${local.server.port}
 greeting-service-with-timeouts-retriable:
   connectTimeout: 10
   readTimeout: 100
   maxRetries: 3
-  ribbon:
-      listOfServers: localhost:${local.server.port}
 
 thrift.client.max.threads: 10

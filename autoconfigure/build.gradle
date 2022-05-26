@@ -9,7 +9,7 @@ dependencies {
     compileOnly "org.springframework.boot:spring-boot-starter-web", optional
     compileOnly "org.springframework.boot:spring-boot-starter-actuator", optional
     compileOnly "org.springframework.cloud:spring-cloud-starter-loadbalancer", optional
-    compileOnly "org.springframework.cloud:spring-cloud-sleuth-zipkin", optional
+    compileOnly "org.springframework.cloud:spring-cloud-starter-sleuth", optional
 
     compileOnly 'org.apache.commons:commons-pool2', optional
     compileOnly 'org.apache.commons:commons-lang3', optional
