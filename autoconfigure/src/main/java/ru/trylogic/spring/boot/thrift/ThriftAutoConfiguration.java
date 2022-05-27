@@ -1,5 +1,6 @@
 package ru.trylogic.spring.boot.thrift;
 
+import brave.Tracer;
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.Getter;
 import lombok.Setter;
@@ -24,6 +25,7 @@ import org.springframework.util.ClassUtils;
 import ru.trylogic.spring.boot.thrift.annotation.ThriftController;
 import ru.trylogic.spring.boot.thrift.aop.LoggingThriftMethodInterceptor;
 import ru.trylogic.spring.boot.thrift.aop.MetricsThriftMethodInterceptor;
+import ru.trylogic.spring.boot.thrift.aop.TracingThriftMethodInterceptor;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletRegistration;
@@ -60,12 +62,18 @@ public class ThriftAutoConfiguration {
         @Autowired(required = false)
         private MeterRegistry meterRegistry;
 
+        @Autowired(required = false)
+        private Tracer tracer;
+
         @Autowired
         private LoggingThriftMethodInterceptor loggingThriftMethodInterceptor;
 
         public void configureProxyFactory(ProxyFactory proxyFactory) {
             if (meterRegistry != null) {
                 proxyFactory.addAdvice(new MetricsThriftMethodInterceptor(meterRegistry));
+            }
+            if (tracer != null) {
+                proxyFactory.addAdvice(new TracingThriftMethodInterceptor(tracer));
             }
             proxyFactory.addAdvice(loggingThriftMethodInterceptor);
         }
