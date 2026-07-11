@@ -21,10 +21,12 @@ import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ReflectionUtils;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import java.lang.reflect.Field;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.HashMap;
@@ -46,6 +48,10 @@ public class ThriftClientsMapBeanPostProcessor implements BeanPostProcessor {
 
     private final DefaultListableBeanFactory beanFactory;
     private final KeyedObjectPool<ThriftClientKey, TServiceClient> thriftClientsPool;
+
+    @Lazy
+    @Autowired
+    private ThriftClientHeaderApplier headerApplier;
 
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
@@ -120,6 +126,7 @@ public class ThriftClientsMapBeanPostProcessor implements BeanPostProcessor {
 
             try {
                 thriftClient = thriftClientsPool.borrowObject(key);
+                headerApplier.applyHeaders(thriftClient);
                 return ReflectionUtils.invokeMethod(methodInvocation.getMethod(), thriftClient, args);
             } catch (UndeclaredThrowableException e) {
                 if (TException.class.isAssignableFrom(e.getUndeclaredThrowable().getClass()))
