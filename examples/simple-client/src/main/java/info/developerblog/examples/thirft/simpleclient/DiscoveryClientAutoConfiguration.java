@@ -1,6 +1,6 @@
 package info.developerblog.examples.thirft.simpleclient;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.web.context.WebServerInitializedEvent;
 import org.springframework.cloud.client.DefaultServiceInstance;
@@ -12,10 +12,10 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @AutoConfigureAfter({ SimpleDiscoveryClientAutoConfiguration.class })
+@RequiredArgsConstructor
 public class DiscoveryClientAutoConfiguration implements ApplicationListener<WebServerInitializedEvent> {
 
-    @Autowired
-    private DiscoveryClient simpleDiscoveryClient;
+    private final DiscoveryClient simpleDiscoveryClient;
 
     @Override
     public void onApplicationEvent(WebServerInitializedEvent webServerInitializedEvent) {

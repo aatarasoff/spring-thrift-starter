@@ -9,7 +9,7 @@ import org.apache.thrift.TServiceClient;
  * Created by aleksandr on 03.08.15.
  */
 public class ThriftClientPool extends GenericKeyedObjectPool<ThriftClientKey, TServiceClient> {
-    public ThriftClientPool(KeyedPooledObjectFactory<ThriftClientKey, TServiceClient> factory, GenericKeyedObjectPoolConfig config) {
+    public ThriftClientPool(KeyedPooledObjectFactory<ThriftClientKey, TServiceClient> factory, GenericKeyedObjectPoolConfig<TServiceClient> config) {
         super(factory, config);
     }
 }

@@ -1,16 +1,11 @@
 package info.developerblog.spring.thrift.client;
 
 import info.developerblog.spring.thrift.annotation.ThriftClient;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.aop.framework.Advised;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -19,6 +14,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ReflectionUtils;
+
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by aleksandr on 01.09.15.
@@ -29,19 +30,16 @@ import org.springframework.util.ReflectionUtils;
 @ConditionalOnClass(ThriftClient.class)
 @ConditionalOnWebApplication
 @AutoConfigureAfter(ThriftClientBeanPostProcessorService.class)
+@RequiredArgsConstructor
 public class ThriftClientFieldInjectorBeanPostProcessor implements BeanPostProcessor {
 
-    private final Map<String, List<Class>> beansToProcess = new HashMap<>();
+    private final Map<String, List<Class<?>>> beansToProcess = new HashMap<>();
 
-    @Autowired
-    private ThriftClientBeanPostProcessorService service;
-
-    public ThriftClientFieldInjectorBeanPostProcessor() {
-    }
+    private final ThriftClientBeanPostProcessorService service;
 
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-        Class clazz = bean.getClass();
+        Class<?> clazz = bean.getClass();
         do {
             for (Field field : clazz.getDeclaredFields()) {
                 if (field.isAnnotationPresent(ThriftClient.class)) {
@@ -60,7 +58,7 @@ public class ThriftClientFieldInjectorBeanPostProcessor implements BeanPostProce
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
         if (beansToProcess.containsKey(beanName)) {
             Object target = getTargetBean(bean);
-            for (Class clazz : beansToProcess.get(beanName)) {
+            for (Class<?> clazz : beansToProcess.get(beanName)) {
                 for (Field field : clazz.getDeclaredFields()) {
                     ThriftClient annotation = AnnotationUtils.getAnnotation(field, ThriftClient.class);
                     if (null != annotation) {
@@ -86,5 +84,4 @@ public class ThriftClientFieldInjectorBeanPostProcessor implements BeanPostProce
         }
         return target;
     }
-
 }

@@ -1,8 +1,19 @@
 # Apache Thrift Starter for Spring Boot
 
 [![Join the chat at https://gitter.im/aatarasoff/spring-thrift-starter](https://badges.gitter.im/aatarasoff/spring-thrift-starter.svg)](https://gitter.im/aatarasoff/spring-thrift-starter?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Build Status](https://travis-ci.org/aatarasoff/spring-thrift-starter.svg?branch=master)](https://travis-ci.org/aatarasoff/spring-thrift-starter)
+[![Build Status](https://github.com/aatarasoff/spring-thrift-starter/actions/workflows/gradle.yml/badge.svg)](https://github.com/aatarasoff/spring-thrift-starter/actions/workflows/gradle.yml)
 
 Set of cool annotations that helps you building Thrift applications with Spring Boot.
+
+## What's new in this fork
+
+- **Spring Boot 3.2.x** support (upgraded from Spring Boot 2.x)
+- **Java 17+** required (upgraded from Java 11)
+- **Spring Cloud 2023.0.x** support
+- **Micrometer Tracing** replaces Spring Cloud Sleuth for distributed tracing
+- **Custom header propagation** via `ThriftClientHeaderCustomizer` SPI
+- Standard `java-library` + `maven-publish` Gradle plugins (replaced Nebula plugins)
+- Constructor injection throughout (no more `@Autowired` field injection)
 
 ## How to connect the project
 ```groovy
@@ -17,10 +28,10 @@ repositories {
     }
 }
 
-compile 'info.developerblog.spring.thrift:spring-thrift-starter:+'
+implementation 'info.developerblog.spring.thrift:spring-thrift-starter:4.0.0'
 ```
 
-For more information, please, look the official github packages [documentation](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-gradle-registry#using-a-published-package).
+For more information, please look at the official GitHub Packages [documentation](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-gradle-registry#using-a-published-package).
 
 ## How to use this
 
@@ -99,8 +110,20 @@ If you use service discovery backend (as Eureka or Consul) only path maybe neede
 
 See tests for better understanding.
 
-### Sleuth support
-Since 1.0.0 starter have supported [Spring Cloud Sleuth](https://cloud.spring.io/spring-cloud-sleuth) for tracing.
+### Micrometer Tracing support
+Distributed tracing is supported via [Micrometer Tracing](https://micrometer.io/docs/tracing) with Brave bridge (replaces Spring Cloud Sleuth which was removed in Spring Boot 3).
+
+### Custom header propagation
+Implement `ThriftClientHeaderCustomizer` and register it as a Spring bean to inject custom headers into outgoing Thrift calls:
+```java
+@Component
+public class AuthHeaderCustomizer implements ThriftClientHeaderCustomizer {
+    @Override
+    public Map<String, String> headers() {
+        return Map.of("Authorization", "Bearer " + tokenProvider.getToken());
+    }
+}
+```
 
 ## Special thanks to
 

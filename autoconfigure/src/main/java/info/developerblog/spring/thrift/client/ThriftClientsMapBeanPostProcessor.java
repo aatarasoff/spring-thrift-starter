@@ -2,10 +2,7 @@ package info.developerblog.spring.thrift.client;
 
 import info.developerblog.spring.thrift.annotation.ThriftClientsMap;
 import info.developerblog.spring.thrift.client.pool.ThriftClientKey;
-import java.lang.reflect.Field;
-import java.lang.reflect.UndeclaredThrowableException;
-import java.util.HashMap;
-import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.apache.commons.pool2.KeyedObjectPool;
@@ -18,7 +15,6 @@ import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.InvalidPropertyException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -28,6 +24,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ReflectionUtils;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.UndeclaredThrowableException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author jihor (jihor@ya.ru)
@@ -39,21 +40,16 @@ import org.springframework.util.ReflectionUtils;
 @ConditionalOnClass(ThriftClientsMap.class)
 @ConditionalOnWebApplication
 @AutoConfigureAfter(PoolConfiguration.class)
+@RequiredArgsConstructor
 public class ThriftClientsMapBeanPostProcessor implements BeanPostProcessor {
-    private Map<String, Class> beansToProcess = new HashMap<>();
+    private final Map<String, Class<?>> beansToProcess = new HashMap<>();
 
-    @Autowired
-    private DefaultListableBeanFactory beanFactory;
-
-    @Autowired
-    private KeyedObjectPool<ThriftClientKey, TServiceClient> thriftClientsPool;
-
-    public ThriftClientsMapBeanPostProcessor() {
-    }
+    private final DefaultListableBeanFactory beanFactory;
+    private final KeyedObjectPool<ThriftClientKey, TServiceClient> thriftClientsPool;
 
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-        Class clazz = bean.getClass();
+        Class<?> clazz = bean.getClass();
         do {
             for (Field field : clazz.getDeclaredFields()) {
                 if (field.isAnnotationPresent(ThriftClientsMap.class)) {
@@ -66,6 +62,7 @@ public class ThriftClientsMapBeanPostProcessor implements BeanPostProcessor {
     }
 
     @Override
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
         if (beansToProcess.containsKey(beanName)) {
             Object target = getTargetBean(bean);
@@ -83,7 +80,7 @@ public class ThriftClientsMapBeanPostProcessor implements BeanPostProcessor {
                         clients.put(entry.getKey(), proxyFactory.getProxy());
                     }
                     ReflectionUtils.makeAccessible(field);
-                    ReflectionUtils.setField(field, bean, clients);
+                    ReflectionUtils.setField(field, target, clients);
                 }
             }
         }
@@ -100,10 +97,10 @@ public class ThriftClientsMapBeanPostProcessor implements BeanPostProcessor {
         return target;
     }
 
+    @SuppressWarnings("rawtypes")
     private ProxyFactory getProxyFactoryForThriftClient(Object bean, Field field, Class clazz) {
-        ProxyFactory proxyFactory = null;
         try {
-            proxyFactory = new ProxyFactory(
+            return new ProxyFactory(
                     BeanUtils.instantiateClass(
                             clazz.getConstructor(TProtocol.class),
                             (TProtocol) null
@@ -112,7 +109,6 @@ public class ThriftClientsMapBeanPostProcessor implements BeanPostProcessor {
         } catch (NoSuchMethodException e) {
             throw new InvalidPropertyException(bean.getClass(), field.getName(), e.getMessage());
         }
-        return proxyFactory;
     }
 
     @SuppressWarnings("unchecked")

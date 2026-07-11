@@ -1,10 +1,5 @@
-import org.gradle.internal.os.OperatingSystem
-
-buildscript {
-    repositories {
-        mavenLocal()
-        mavenCentral()
-    }
+plugins {
+    id 'java-library'
 }
 
 sourceSets {
@@ -23,5 +18,7 @@ idea {
 }
 
 dependencies {
-    compile "org.apache.thrift:libthrift"
+    api "org.apache.thrift:libthrift"
+    implementation "jakarta.annotation:jakarta.annotation-api:2.1.1"
+    implementation "org.slf4j:slf4j-api"
 }

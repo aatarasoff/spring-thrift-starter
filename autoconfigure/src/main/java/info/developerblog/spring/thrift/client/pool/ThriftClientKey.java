@@ -3,7 +3,6 @@ package info.developerblog.spring.thrift.client.pool;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.text.WordUtils;
 import org.apache.thrift.TServiceClient;
 
 /**
@@ -17,8 +16,10 @@ public class ThriftClientKey {
     private String path;
 
     public String getServiceName() {
-        if (StringUtils.isEmpty(serviceName))
-            return WordUtils.uncapitalize(clazz.getEnclosingClass().getSimpleName());
+        if (StringUtils.isEmpty(serviceName)) {
+            String simpleName = clazz.getEnclosingClass().getSimpleName();
+            return simpleName.substring(0, 1).toLowerCase() + simpleName.substring(1);
+        }
         return serviceName;
     }
 

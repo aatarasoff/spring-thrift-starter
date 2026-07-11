@@ -1,6 +1,8 @@
 package ru.trylogic.spring.boot.thrift;
 
 import io.micrometer.core.instrument.MeterRegistry;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletRegistration;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
@@ -25,8 +27,6 @@ import ru.trylogic.spring.boot.thrift.annotation.ThriftController;
 import ru.trylogic.spring.boot.thrift.aop.LoggingThriftMethodInterceptor;
 import ru.trylogic.spring.boot.thrift.aop.MetricsThriftMethodInterceptor;
 
-import javax.servlet.ServletContext;
-import javax.servlet.ServletRegistration;
 import java.lang.reflect.Constructor;
 
 @Configuration
@@ -99,6 +99,7 @@ public class ThriftAutoConfiguration {
             }
         }
 
+        @SuppressWarnings({"unchecked", "rawtypes"})
         protected void register(ServletContext servletContext, String[] urls, Class<? extends TProtocolFactory> factory, Object handler) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InstantiationException {
             Class<?>[] handlerInterfaces = ClassUtils.getAllInterfaces(handler);
 
@@ -168,6 +169,7 @@ public class ThriftAutoConfiguration {
             return new TServlet(processor, protocolFactory);
         }
 
+        @SuppressWarnings("unchecked")
         protected <T> T wrapHandler(Class<T> interfaceClass, T handler) {
             ProxyFactory proxyFactory = new ProxyFactory(interfaceClass, new SingletonTargetSource(handler));
 
