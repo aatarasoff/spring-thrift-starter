@@ -1,18 +1,18 @@
-apply plugin: 'nebula.maven-publish'
-apply plugin: 'nebula.compile-api'
-apply plugin: 'nebula.source-jar'
-apply plugin: 'nebula.optional-base'
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+}
 
 dependencies {
-    compileOnly 'org.apache.thrift:libthrift', optional
+    compileOnly 'org.apache.thrift:libthrift'
 
-    compileOnly "org.springframework.boot:spring-boot-starter-web", optional
-    compileOnly "org.springframework.boot:spring-boot-starter-actuator", optional
-    compileOnly "org.springframework.cloud:spring-cloud-starter-loadbalancer", optional
-    compileOnly "org.springframework.cloud:spring-cloud-starter-sleuth", optional
+    compileOnly 'org.springframework.boot:spring-boot-starter-web'
+    compileOnly 'org.springframework.boot:spring-boot-starter-actuator'
+    compileOnly 'org.springframework.cloud:spring-cloud-starter-loadbalancer'
+    compileOnly 'io.micrometer:micrometer-tracing'
 
-    compileOnly 'org.apache.commons:commons-pool2', optional
-    compileOnly 'org.apache.commons:commons-lang3', optional
+    compileOnly 'org.apache.commons:commons-pool2'
+    compileOnly 'org.apache.commons:commons-lang3'
 }
 
 publishing {
@@ -27,7 +27,12 @@ publishing {
         }
     }
     publications {
-        nebula(MavenPublication) {
+        mavenJava(MavenPublication) {
+            from components.java
         }
     }
+}
+
+java {
+    withSourcesJar()
 }

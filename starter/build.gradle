@@ -1,20 +1,21 @@
-apply plugin: 'nebula.maven-publish'
-apply plugin: 'nebula.compile-api'
-apply plugin: 'nebula.source-jar'
-apply plugin: 'nebula.optional-base'
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+}
 
 dependencies {
-    compileApi project(':spring-thrift-autoconfigure')
+    api project(':spring-thrift-autoconfigure')
 
-    compileApi 'org.apache.thrift:libthrift'
+    api 'org.apache.thrift:libthrift:0.22.0'
 
-    compileApi 'org.springframework.boot:spring-boot-starter-web'
-    compileApi 'org.springframework.boot:spring-boot-starter-actuator'
-    compileApi 'org.springframework.cloud:spring-cloud-starter-loadbalancer'
-    compileApi 'org.springframework.cloud:spring-cloud-starter-sleuth'
+    api 'org.springframework.boot:spring-boot-starter-web:3.2.5'
+    api 'org.springframework.boot:spring-boot-starter-actuator:3.2.5'
+    api 'org.springframework.cloud:spring-cloud-starter-loadbalancer:4.1.2'
+    api 'io.micrometer:micrometer-tracing:1.2.5'
+    api 'io.micrometer:micrometer-tracing-bridge-brave:1.2.5'
 
-    compileApi 'org.apache.commons:commons-pool2'
-    compileApi 'org.apache.commons:commons-lang3'
+    api 'org.apache.commons:commons-pool2:2.12.0'
+    api 'org.apache.commons:commons-lang3:3.14.0'
 }
 
 publishing {
@@ -29,7 +30,12 @@ publishing {
         }
     }
     publications {
-        nebula() {
+        mavenJava(MavenPublication) {
+            from components.java
         }
     }
+}
+
+java {
+    withSourcesJar()
 }

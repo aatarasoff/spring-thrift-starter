@@ -1,4 +1,5 @@
 dependencies {
-    compile project(":spring-thrift-starter")
-    compile project(":examples:test-protocol")
+    implementation project(":spring-thrift-starter")
+    implementation project(":examples:test-protocol")
+    testImplementation "org.springframework.boot:spring-boot-starter-aop"
 }

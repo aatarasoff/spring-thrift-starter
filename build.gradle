@@ -1,21 +1,18 @@
 buildscript {
     repositories {
-        jcenter()
+        mavenCentral()
     }
     dependencies {
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.5'
-        classpath 'org.springframework.boot:spring-boot-gradle-plugin:2.2.7.RELEASE'
-        classpath 'com.netflix.nebula:gradle-extra-configurations-plugin:5.0.3'
-        classpath "com.netflix.nebula:nebula-publishing-plugin:16.0.0"
+        classpath 'org.springframework.boot:spring-boot-gradle-plugin:3.2.5'
     }
 }
 
 allprojects {
     group = 'info.developerblog.spring.thrift'
-    version = '3.0.1'
+    version = '4.0.0'
 
     repositories {
-        jcenter()
+        mavenCentral()
     }
 
     apply plugin: 'idea'
@@ -23,14 +20,15 @@ allprojects {
 
     dependencyManagement {
         imports {
-            mavenBom "org.springframework.cloud:spring-cloud-starter-parent:2021.0.2"
+            mavenBom "org.springframework.boot:spring-boot-dependencies:3.2.5"
+            mavenBom "org.springframework.cloud:spring-cloud-dependencies:2023.0.2"
         }
 
         dependencies {
-            dependency 'org.projectlombok:lombok:1.18.12'
-            dependency 'org.apache.thrift:libthrift:0.16.0'
-            dependency 'org.apache.commons:commons-pool2:2.11.1'
-            dependency 'org.apache.commons:commons-lang3:3.12.0'
+            dependency 'org.projectlombok:lombok:1.18.32'
+            dependency 'org.apache.thrift:libthrift:0.22.0'
+            dependency 'org.apache.commons:commons-pool2:2.12.0'
+            dependency 'org.apache.commons:commons-lang3:3.14.0'
         }
     }
 
@@ -44,14 +42,13 @@ allprojects {
 subprojects {
     apply plugin: 'java'
 
-
-    sourceCompatibility = 1.8
-    targetCompatibility = 1.8
+    sourceCompatibility = 17
+    targetCompatibility = 17
 
     test {
         reports {
-            junitXml.enabled = true
-            html.enabled = true
+            junitXml.required = true
+            html.required = true
         }
 
         useJUnitPlatform()
@@ -61,6 +58,6 @@ subprojects {
         compileOnly "org.projectlombok:lombok"
         annotationProcessor "org.projectlombok:lombok"
 
-        testCompile "org.springframework.boot:spring-boot-starter-test"
+        testImplementation "org.springframework.boot:spring-boot-starter-test"
     }
 }
